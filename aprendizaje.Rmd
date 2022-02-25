@@ -1,25 +1,83 @@
 ---
-title: "Trabajo de Aprendizaje Estadístico [proyecto]"
-author: "Autores: [grupo de clase]"
-date: "`r Sys.Date()`"
+title: "Técnicas de Aprendizaje Estadístico aplicadas a empresas editoriales españolas"
+author: 'Autores: Bermann, M.A. & Pérez, R.S.'
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-  word_document: 
-    reference_docx: uclm_template.docx
-    toc: true
-  html_document: default
+    prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+subtitle: Máster Universitario en Modelización y Análisis de Datos Económicos <p> (MUMADE)
+lang: es
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval=TRUE, message = FALSE)
+```{r setup, include = FALSE}
+# Ajustes de los chunk
+knitr::opts_chunk$set(echo = FALSE, 
+                      eval = TRUE, 
+                      message = FALSE,
+                      warning = FALSE,
+                      comment = '')
+```
+
+```{r}
+# Limpieza inicial del entorno
+rm(list = ls())
+
+# Instalación de paquetes que no estén instalados
+packages <- c("tidyr", "dplyr", "ggplot2", "knitr", 
+              "readxl", "tibble", "kableExtra", "gt",
+              "PerformanceAnalytics")
+installed_packages <- packages %in% 
+  rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages])
+}
+
+# Activación de paquetes
+library(readxl)
+library(PerformanceAnalytics)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(tibble)
+library(gt)
+library(kableExtra)
 ```
 
 # Resumen 
 
-Las empresass editoriales están en una transición donde el papel se está viendo sobrepasado por todo lo que pueda sonar a "digital". En este sentido, en España, las empresas editoriales siempre han ido teniendo cierta importancia gracias a que son una vía de posicionamiento y puesta en valor de la creación artística y literaria de miles de autores, así como por ser canal de producción de productos relacionados con numerosos ámbitos (educativos, revistas, etc.). En este sentido, es de interés, aplicar técnicas de aprendizaje estadístico para poder dar uso a diferentes métodos de predicción y clasificación, utilizando para ello R. Para ello, se han utilizado datos de 370 empresas editoriales españolas, extraídas de la base de datos empresariales Sabi (licencia: UCLM).
+Las empresass editoriales están en una transición donde el papel se está viendo sobrepasado por todo lo que pueda sonar a "digital". En este sentido, en España, las empresas editoriales siempre han ido teniendo cierta importancia gracias a que son una vía de posicionamiento y puesta en valor de la creación artística y literaria de miles de autores, así como por ser canal de producción de productos relacionados con numerosos ámbitos (educativos, revistas, etc.). En este sentido, es de interés, aplicar técnicas de aprendizaje estadístico para poder dar uso a diferentes métodos de predicción y clasificación, utilizando para ello R.
 
 # Importación de datos
 
-Si usáis vuestros propios datos, describidlos brevemente, indicando qué significan las variables que vais a usar. Incluid aquí el código para importar los datos. Idealmente, los tendréis ya "limpios" en un excel, .rds o similar, y aquí solamente los importaréis para tener un data.frame listo para analizar.
+Se han utilizado datos de 370 empresas editoriales españolas, extraídas de la base de datos empresariales Sabi (licencia: UCLM), y obteniéndose un _dataset_ bidimensional sobre las editoriales españolas. Su dimensión es de 370 x 15, con una columna identificativa con el nombre de empresa y un conjunto de variables económicas, siendo éstas:
+
+  + reneco: la rentabilidad económica de la empresa. Es el resultado de dividir el resultado del ejercicio entre los activos empresariales.
+  + renfin: la rentabilidad financiera de la empresa. Es el resultado de dividir el resultado del ejercicio entre los fondos propios.
+  + liquidez: la liquidez de la empresa. Es el resultado de dividir los activos líquidos de la empresa entre sus deudas.
+  + endeuda: el nivel de endeudamiento de la empresa. Es el resultado de dividir las deudas entre el total de activos.
+  + fpios: fondos propios. Cantidad absoluta, en miles de euros, de fondos propios de la empresa.
+ + res: resultado del ejercicio. Resultado del ejercicio absoluto, en miles de euros. 
+ + ing: ingresos de explotación. Ingresos del ejercicio absolutos, en miles de euros.
+ + margen: margen financiero. Es el resultado de dividir el resultado del ejercicio entre los ingressos de explotación.
+ + solvencia: ratio de solvencia. Es el resultado de dividir el activo a corto plazo entre el pasivo a corto plazo, indicando la capacidad de la empresa de pagar sus deudas a corto plazo. 
+ + apalanca: apalancamiento. Es el resultado de dividir la deuda entre los fondos propios.
+ + tamaño: Tamaño de la empresa. Para generar esta variable cualitativa, hemos clasificado las empresas según el número de trabajadores.
+ +beneficio: beneficio de la empresa. Hemos generado esta variable binaria según si la empresa tiene beneficios o pérdidas durante el ejercicio. 1 indica la existencia de beneficios, y 0 de pérdidas.
+
+```{r}
+# Importando los datos de un archivo .rds
+editoriales <- 
+  readRDS('dataset_aprendizaje.rds')
+editoriales <- 
+  data.frame(editoriales, row.names = 1)
+editoriales %>% 
+  colnames()
+editoriales$tamaño <- editoriales$tamaño %>% 
+  as.factor()
+is.factor(editoriales$tamaño)
+```
 
 En este apartado podéis hacer la división en conjuntos de entrenamiento y test. Podéis usar el método de los índices como en los _labs_ del libro, para poder reutilizar al máximo el código. Fijad la semilla para que el resultado sea reproducible al corregir.
 
@@ -83,4 +141,10 @@ Podéis incluir anexos y referencias si queréis, aunque no es necesario para el
 
 # Anexos
 
+## Anexo 1. Datos de la sesión
 
+En esta sección se recogen los datos de la sesión utilizada para elaborar este informe. Es fundamental observar la versión de R, así como las versiones de los paquetes bajo los cuales se ha ejecutado el código o *script*.
+
+```{r}
+sessionInfo()
+```
