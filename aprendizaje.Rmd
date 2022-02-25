@@ -1,12 +1,12 @@
 ---
 title: "Técnicas de Aprendizaje Estadístico aplicadas a empresas editoriales españolas"
+subtitle: "Máster Universitario en Modelización y Análisis de Datos Económicos <p> (MUMADE)"
 author: 'Autores: Bermann, M.A. & Pérez, R.S.'
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
     prettydoc::html_pretty:
     theme: cayman
-    highlight: github
-subtitle: Máster Universitario en Modelización y Análisis de Datos Económicos <p> (MUMADE)
+    highlight: vignette
 lang: es
 ---
 
@@ -43,6 +43,11 @@ library(knitr)
 library(tibble)
 library(gt)
 library(kableExtra)
+library(ez)
+library(GGally)
+library(corrplot)
+library(stats)
+library(ggcorrplot)
 ```
 
 # Resumen 
@@ -72,11 +77,16 @@ editoriales <-
   readRDS('dataset_aprendizaje.rds')
 editoriales <- 
   data.frame(editoriales, row.names = 1)
-editoriales %>% 
-  colnames()
-editoriales$tamaño <- editoriales$tamaño %>% 
-  as.factor()
-is.factor(editoriales$tamaño)
+editoriales$tamaño <-
+  factor(editoriales$tamaño,
+         levels = c("microempresa", 
+                    "pequeña",
+                    "mediana", 
+                    "grande"), 
+         labels = c("microempresa",
+                    "pequeña", 
+                    "mediana", 
+                    "grande"))
 ```
 
 En este apartado podéis hacer la división en conjuntos de entrenamiento y test. Podéis usar el método de los índices como en los _labs_ del libro, para poder reutilizar al máximo el código. Fijad la semilla para que el resultado sea reproducible al corregir.
@@ -89,10 +99,52 @@ train <- slice_sample(editoriales,
                       n = 300)
 ```
 
-
 # Regresión
 
 Elige una variable **numérica** de interés del conjunto de datos, que tenga sentido predecir a partir de las demás. Si estás usando los datos de RRHH, la empresa podría estar interesada en predecir el nivel de satisfacción en función de las demás. Haz algunos gráficos y resúmenes numéricos para explorar las relaciones (correlaciones de variables numéricas, gráficos de cajas por grupos, medias por grupos, ...)
+
+renfin ~ tamaño ing emplea activo
+
+```{r, fig.width = 5, fig.height = 7}
+# ANÁLISIS DE CORRELACIONES
+model.matrix(~0+., data = editoriales) %>%
+  cor(use = "pairwise.complete.obs") %>%
+  ggcorrplot(show.diag = F, type = "lower", lab=TRUE, lab_size=2)
+
+#DISPERSION
+ggplot(data = editoriales, aes(x = row.names(editoriales), y = emplea)) +
+  geom_point(size = 2, alpha = 0.8, colour = 'orange') +
+  xlab('Empresa') +
+  ylab('Empleados') + ggtitle('') +
+  theme_light()+
+  theme(axis.text.x = element_text(angle = 90, size = 6,hjust = 1, vjust = 1))
+
+ggplot(data = editoriales, aes(y = reneco)) +
+  geom_boxplot(alpha = 0.5, 
+               col = "steelblue",
+               fill = "orange", 
+               outlier.color = "blue",
+               outlier.shape = 16,
+               notch = TRUE) +
+  labs(title ="Rentabilidad económica") +
+  xlab("Rentabilidad económica")+
+  ylab("Empresas") +
+  geom_hline(yintercept = 0)+
+  theme_light()
+
+ggplot(editoriales, aes(tamaño, activo)) +
+  geom_boxplot()
+# GRÁFICAS DE CAJAS POR GRUPOS
+library(plotly)
+fig <- plot_ly(y = ~rnorm(50), type = "box")
+fig <- fig %>% add_trace(y = ~rnorm(50, 1))
+fig
+# MEDIAS POR GRUPOS
+editoriales %>%
+  group_by(beneficio) %>%
+  summarise_at(vars(apalanca), list(name = mean))
+# EXPLORATORIO
+```
 
 Ajusta **algunos** de los siguientes modelos que hemos aprendido en la asignatura con los datos de entrenamiento, y evalúa los errores en los dos conjuntos. Usa validación cruzada en aquellos en los que se haya usado en los _labs_:
 
