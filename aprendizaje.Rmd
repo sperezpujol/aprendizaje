@@ -1,0 +1,116 @@
+---
+title: "Trabajo de Aprendizaje Estadístico [proyecto]"
+author: "Autores: [grupo de clase]"
+date: "`r Sys.Date()`"
+output:
+  word_document: 
+    reference_docx: uclm_template.docx
+    toc: true
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=TRUE, message = FALSE)
+```
+
+**Alcance del documento**
+
+Este documento R Markdown es una plantilla para la práctica del bloque de
+Aprendizaje Estadístico
+de la asignatura 
+"Aprendizaje Estadístico y Otras Técnicas Analíticas Avanzadas" 
+del Máster Universitario de Modelización y Análisis de Datos Económicos. 
+
+El objetivo de este trabajo es practicar los métodos de regresión y clasificación aprendidos en la asignatura. El trabajo se evaluará por grupos (solo un miembro del grupo debe subir el trabajo a Moodle).
+Se recomienda utilizar un conjunto de datos propio, con el que ya esté trabajando el grupo en otras asignaturas (se valorará positivamente). No obstante, se puede utilizar también 
+el conjunto de datos de RRHH utilizado en la asignatura de análisis exploratorio,
+que se puede descargar en la carpeta datos del proyecto en el que estéis con
+la siguiente expresión:
+
+```{r, eval = FALSE}
+download.file(url = "http://emilio.lcano.com/b/adr/p/datos/RRHH.xlsx",
+              destfile = "datos/RRHH.xlsx",
+              mode = "wb")
+```
+
+
+
+Se incluyen algunas opciones avanzadas de los informes R Markdown, como una tabla de contenidos y una plantilla Word (reference_docx en el lenguaje de R),
+que el alumno puede personalizar.
+
+En este trabajo se puede incluir y mostrar el código intercalado, pero si preferís otro estilo también es válido (ocultar el código, o lo que queráis)
+
+El texto hasta aquí se puede eliminar para la entrega. A continuación se muestra una guía de las actividades a realizar.
+
+
+# Resumen 
+
+Podéis incluir aquí un resumen de un párrafo o máximo dos del trabajo, indicando qué datos habéis utilizado, si habéis encontrado algo interesante, o lo que veáis.
+
+# Importación de datos
+
+Si usáis vuestros propios datos, describidlos brevemente, indicando qué significan las variables que vais a usar. Incluid aquí el código para importar los datos. Idealmente, los tendréis ya "limpios" en un excel, .rds o similar, y aquí solamente los importaréis para tener un data.frame listo para analizar.
+
+En este apartado podéis hacer la división en conjuntos de entrenamiento y test. Podéis usar el método de los índices como en los _labs_ del libro, para poder reutilizar al máximo el código. Fijad la semilla para que el resultado sea reproducible al corregir.
+
+# Regresión
+
+Elige una variable **numérica** de interés del conjunto de datos, que tenga sentido predecir a partir de las demás. Si estás usando los datos de RRHH, la empresa podría estar interesada en predecir el nivel de satisfacción en función de las demás. Haz algunos gráficos y resúmenes numéricos para explorar las relaciones (correlaciones de variables numéricas, gráficos de cajas por grupos, medias por grupos, ...)
+
+Ajusta **algunos** de los siguientes modelos que hemos aprendido en la asignatura con los datos de entrenamiento, y evalúa los errores en los dos conjuntos. Usa validación cruzada en aquellos en los que se haya usado en los _labs_:
+
+- KNN
+- Regresión lineal múltiple
+- Regresión lineal múltiple con selección de variables
+- Regresión de Ridge
+- Lasso
+- GAM
+- PCR
+- PLS
+- Árbol de regresión
+- Árboles usando bagging y boosting
+- Random Forests
+- SVMs
+
+No es obligatorio que los hagáis todos. El mínimo es dos, para poder comparar. El código de los _labs_ os debe servir modificándolo para vuestros datos.
+
+Aunque luego lo pongas en las conclusiones, explica aquí cuál es el mejor modelo para predecir la variable que has elegido.
+
+# Clasificación
+
+Elige una variable **categórica** de interés del conjunto de datos, que tenga sentido predecir a partir de las demás. Si estás usando los datos de RRHH, la empresa podría estar interesada en predecir el abandono en función de las demás. Haz algunos gráficos y resúmenes numéricos para explorar las relaciones (algunos del apartado de regresión servirán para este.
+
+Ajusta **algunos** de los siguientes modelos que hemos aprendido en la asignatura con los datos de entrenamiento, y evalúa los errores en los dos conjuntos. Usa validación cruzada en aquellos en los que se haya usado en los _labs_:
+
+- KNN
+- Regresión Logística
+- Discriminante lineal y cuadrático
+- GAM para respuesta categórica
+- Árbol de regresión
+- Árboles usando bagging y boosting
+- Random Forests
+- SVMs
+
+Recuerda que aunque hay muchos modelos, el procedimiento es similar en todos:
+
+1. Ajustar modelo en datos _train_
+2. Predecir respuesta en datos _test_
+3. Evaluar el error en datos _test_ y _train_
+4. Repetir para distintos modelos
+5. Comparar los modelos
+
+Empieza por dos modelos que te resultan más fáciles, y después ve probando más. No es obligatorio ajustarlos todos.
+
+
+# Conclusiones
+
+Incluid unas breves conclusiones, uno o dos párrafos comentando los resultados.
+
+
+# Referencias
+
+Podéis incluir anexos y referencias si queréis, aunque no es necesario para el objetivo de este trabajo
+
+# Anexos
+
+
