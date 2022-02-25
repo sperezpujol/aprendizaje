@@ -1,4 +1,4 @@
-#Trabajo final de Aprendizaje Estadístico y otras técnicas analíticas avanzadas
+# Trabajo final de Aprendizaje Estadístico y otras técnicas analíticas avanzadas
 
 En este trabajo usaremos técnicas de aprendizaje estadístico para predecir cuestiones clave sobre las editoriales españolas usando información  sobre 370 diferentes editoriales del año 2018. 
 
