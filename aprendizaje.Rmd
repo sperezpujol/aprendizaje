@@ -13,39 +13,9 @@ output:
 knitr::opts_chunk$set(echo = TRUE, eval=TRUE, message = FALSE)
 ```
 
-**Alcance del documento**
-
-Este documento R Markdown es una plantilla para la práctica del bloque de
-Aprendizaje Estadístico
-de la asignatura 
-"Aprendizaje Estadístico y Otras Técnicas Analíticas Avanzadas" 
-del Máster Universitario de Modelización y Análisis de Datos Económicos. 
-
-El objetivo de este trabajo es practicar los métodos de regresión y clasificación aprendidos en la asignatura. El trabajo se evaluará por grupos (solo un miembro del grupo debe subir el trabajo a Moodle).
-Se recomienda utilizar un conjunto de datos propio, con el que ya esté trabajando el grupo en otras asignaturas (se valorará positivamente). No obstante, se puede utilizar también 
-el conjunto de datos de RRHH utilizado en la asignatura de análisis exploratorio,
-que se puede descargar en la carpeta datos del proyecto en el que estéis con
-la siguiente expresión:
-
-```{r, eval = FALSE}
-download.file(url = "http://emilio.lcano.com/b/adr/p/datos/RRHH.xlsx",
-              destfile = "datos/RRHH.xlsx",
-              mode = "wb")
-```
-
-
-
-Se incluyen algunas opciones avanzadas de los informes R Markdown, como una tabla de contenidos y una plantilla Word (reference_docx en el lenguaje de R),
-que el alumno puede personalizar.
-
-En este trabajo se puede incluir y mostrar el código intercalado, pero si preferís otro estilo también es válido (ocultar el código, o lo que queráis)
-
-El texto hasta aquí se puede eliminar para la entrega. A continuación se muestra una guía de las actividades a realizar.
-
-
 # Resumen 
 
-Podéis incluir aquí un resumen de un párrafo o máximo dos del trabajo, indicando qué datos habéis utilizado, si habéis encontrado algo interesante, o lo que veáis.
+Las empresass editoriales están en una transición donde el papel se está viendo sobrepasado por todo lo que pueda sonar a "digital". En este sentido, en España, las empresas editoriales siempre han ido teniendo cierta importancia gracias a que son una vía de posicionamiento y puesta en valor de la creación artística y literaria de miles de autores, así como por ser canal de producción de productos relacionados con numerosos ámbitos (educativos, revistas, etc.). En este sentido, es de interés, aplicar técnicas de aprendizaje estadístico para poder dar uso a diferentes métodos de predicción y clasificación, utilizando para ello R. Para ello, se han utilizado datos de 370 empresas editoriales españolas, extraídas de la base de datos empresariales Sabi (licencia: UCLM).
 
 # Importación de datos
 
