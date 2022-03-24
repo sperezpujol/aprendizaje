@@ -26,7 +26,8 @@ rm(list = ls())
 # Instalación de paquetes que no estén instalados
 packages <- c("tidyr", "dplyr", "ggplot2", "knitr", 
               "readxl", "tibble", "kableExtra", "gt",
-              "PerformanceAnalytics")
+              "PerformanceAnalytics", "ez",
+              "GGally", "stats", "ggcorrplot")
 installed_packages <- packages %in% 
   rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
@@ -76,7 +77,8 @@ Se han utilizado datos de 370 empresas editoriales españolas, extraídas de la 
 editoriales <- 
   readRDS('dataset_aprendizaje.rds')
 editoriales <- 
-  data.frame(editoriales, row.names = 1)
+  data.frame(editoriales,
+             row.names = 1)
 editoriales$tamaño <-
   factor(editoriales$tamaño,
          levels = c("microempresa", 
@@ -89,62 +91,108 @@ editoriales$tamaño <-
                     "grande"))
 ```
 
-En este apartado podéis hacer la división en conjuntos de entrenamiento y test. Podéis usar el método de los índices como en los _labs_ del libro, para poder reutilizar al máximo el código. Fijad la semilla para que el resultado sea reproducible al corregir.
+A continuación, se procederá a dividir los datos en un conjunto de entrenamiento (train) y otro de validación (test). Se fija la semilla para que el resultado sea, oportunamente reproducible.
 
 ```{r}
 # Partiendo la muestra en test y train
 library(ISLR2)
 set.seed(1)
-train <- slice_sample(editoriales, 
-                      n = 300)
+train <- sample(300, 70)
 ```
 
 # Regresión
 
 Elige una variable **numérica** de interés del conjunto de datos, que tenga sentido predecir a partir de las demás. Si estás usando los datos de RRHH, la empresa podría estar interesada en predecir el nivel de satisfacción en función de las demás. Haz algunos gráficos y resúmenes numéricos para explorar las relaciones (correlaciones de variables numéricas, gráficos de cajas por grupos, medias por grupos, ...)
 
-renfin ~ tamaño ing emplea activo
+Se elige, como variable numérica dependiente, la rentabilidad financiera, con el objetivo de predecirla en función del tamaño empresarial, los ingresos de explotación y el activo de la empresa.
 
-```{r, fig.width = 5, fig.height = 7}
+$renfin = f(tamaño, ing, emplea, activo)$
+
+```{r, fig.width = 10, fig.height = 7}
 # ANÁLISIS DE CORRELACIONES
-model.matrix(~0+., data = editoriales) %>%
+model.matrix(~0+., 
+             data = editoriales) %>%
   cor(use = "pairwise.complete.obs") %>%
-  ggcorrplot(show.diag = F, type = "lower", lab=TRUE, lab_size=2)
+  ggcorrplot(show.diag = F, 
+             type = "lower", 
+             lab=TRUE, 
+             lab_size=2)
+```
+En primer lugar, si se realiza un análisis de correlación entre las variables, encontramos que las mayores correlaciones positivas se dan entre activo y fondos propios y activo e ingresos de explotación. También parece considerable la correlación positiva entre la variable que recoge las empresas de tamaño grande y su relación con el número de empleados y los ingresos de explotación, lo que parece algo evidente. Por su parte, las mayores correlaciones negativas.
 
+```{r, fig.width = 10, fig.height = 7}
 #DISPERSION
-ggplot(data = editoriales, aes(x = row.names(editoriales), y = emplea)) +
-  geom_point(size = 2, alpha = 0.8, colour = 'orange') +
+ggplot(data = editoriales, aes(x = row.names(editoriales), 
+                               y = emplea)) +
+  geom_point(size = 2, 
+             alpha = 0.8, 
+             colour = 'orange') +
   xlab('Empresa') +
   ylab('Empleados') + ggtitle('') +
   theme_light()+
-  theme(axis.text.x = element_text(angle = 90, size = 6,hjust = 1, vjust = 1))
+  theme(axis.text.x = element_text(angle = 90, 
+                                   size = 6,
+                                   hjust = 1, 
+                                   vjust = 1))
 
-ggplot(data = editoriales, aes(y = reneco)) +
+ggplot(data = editoriales, aes(x = row.names(editoriales), 
+                               y = renfin)) +
+  geom_point(size = 2, 
+             alpha = 0.8, 
+             colour = 'orange') +
+  xlab('Empresa') +
+  ylab('Rentabilidad financiera') + ggtitle('') +
+  theme_light()+
+  theme(axis.text.x = element_text(angle = 90, 
+                                   size = 6,
+                                   hjust = 1, 
+                                   vjust = 1))
+
+ggplot(data = editoriales, aes(y = renfin)) +
   geom_boxplot(alpha = 0.5, 
                col = "steelblue",
                fill = "orange", 
                outlier.color = "blue",
                outlier.shape = 16,
                notch = TRUE) +
-  labs(title ="Rentabilidad económica") +
-  xlab("Rentabilidad económica")+
+  labs(title ="Rentabilidad financiera") +
+  xlab("Rentabilidad financiera")+
   ylab("Empresas") +
   geom_hline(yintercept = 0)+
   theme_light()
 
-ggplot(editoriales, aes(tamaño, activo)) +
+ggplot(editoriales, 
+       aes(tamaño, renfin)) +
   geom_boxplot()
+```
+Si se realiza un gráfico de dispersión respecto a los empleados, se observa que hay una serie de empresas de las analizadas que tienen un gran número de empleados. No obstante, al no ser una medida relativa, procedamos a plantear un gráfico de dispersión de la rentabilidad económica. Esto nos muestra que, la mayor parte de las editoriales, sitúan su rentabilidad económica en torno a 0, aunque, no obstante, se siguen observando bastantes casos que despuntan. Ya que la media es positiva, es decir, los resultados de la muestra de rentabilidad económica está sesgada en términos positivos, es una señal de que las empresas editoriales tienen una buena capacidad de generar beneficios a través de su estructura económica. No obstante, esto podría venir dado por la influencia de grandes empresas que empujan a la muestra a tener un sesgo positivo, pues gráficamente observamos también numerosos casos con rentabilidades económicas negativas.
+
+Si observamos un gráfico de cajas, viendo la relación entre tamaño y rentabilidad financiera, observamos que las microempresas, son las que, al tener un nivel de activos inferior, presentan mayor variación en términos de rentabilidad financiera.
+
+```{r, fig.width = 10, fig.height = 7}
+Rentabilidad_Financiera <- c(editoriales$renfin)
 # GRÁFICAS DE CAJAS POR GRUPOS
 library(plotly)
-fig <- plot_ly(y = ~rnorm(50), type = "box")
-fig <- fig %>% add_trace(y = ~rnorm(50, 1))
+fig <- plot_ly(y = ~Rentabilidad_Financiera,
+               type = "box",
+               quartilemethod = "linear",
+               name="Linear Quartile Mode")
 fig
+```
+
+Si analizamos la dispersión de la variable de rentabilidad económica a través de un gráfico de caja, encontramos que la mayor parte de los datos están concentrados en torno a 0 (veamos como el primer y tercer cuartil están prácticamente pegados).
+
+Si analizamos los resultados de apalancamiento teniendo en cuenta el beneficio y tamaño de la empresa, las empresas medianas y las microempresas, tal y como hemos visto en el gráfico de cajas, se ven afectadas de forma severa por los outliers, a diferencia de las empresas pequeñas y grandes. Las empresas medianas, si nos fijamos, tienen outliers por abajo, y las microempresas por arriba y por abajo. Esto explica que las empresas medianas con beneficio positivo, no tengan tampoco un dato alto o como cabría esperar de rentabilidad financiera.
+
+```{r}
 # MEDIAS POR GRUPOS
 editoriales %>%
-  group_by(beneficio) %>%
-  summarise_at(vars(apalanca), list(name = mean))
-# EXPLORATORIO
+  group_by(beneficio, tamaño) %>%
+  summarise_at(vars(renfin), 
+               list(name = mean))
 ```
+
+# MODELOS
 
 Ajusta **algunos** de los siguientes modelos que hemos aprendido en la asignatura con los datos de entrenamiento, y evalúa los errores en los dos conjuntos. Usa validación cruzada en aquellos en los que se haya usado en los _labs_:
 
@@ -164,6 +212,99 @@ Ajusta **algunos** de los siguientes modelos que hemos aprendido en la asignatur
 No es obligatorio que los hagáis todos. El mínimo es dos, para poder comparar. El código de los _labs_ os debe servir modificándolo para vuestros datos.
 
 Aunque luego lo pongas en las conclusiones, explica aquí cuál es el mejor modelo para predecir la variable que has elegido.
+
+## Multiple Linear Regression
+
+Se procede a construir un modelo de regresión múltiple, estimado a través de mínimos cuadrados. Primero estimamos con todas las variables.
+
+```{r}
+lm1.fit <- lm(reneco ~ ., 
+              data = editoriales,
+              subset = train)
+summary(lm1.fit)
+```
+```{r}
+library(car)
+vif(lm1.fit)
+```
+
+Segundo, acotamos las variables explicativas
+
+```{r chunk14}
+lm2.fit <- lm(reneco ~ beneficio + res + fpios + solvencia,
+             data = editoriales,
+             subset = train)
+summary(lm2.fit)
+```
+
+Observamos buenos datos de significación, es decir, de relación de variables, aunque la capacidad predictiva del modelo es bastante baja.
+
+A continuación, observamos valores altos del vif para algunas variables (endeuda, activo, fpios, ing, solvencia), lo que evidencia problemas de colinealidad en algunas variables.
+
+```{r}
+library(car)
+vif(lm2.fit)
+```
+
+Ahora procederemos a la validación del modelo de regresión múltiple. En este punto, calculamos el error medio del modelo generado, utilizando información de la muestra de entrenamiento.
+
+```{r}
+attach(editoriales)
+mean((reneco - predict(lm2.fit, 
+                       editoriales))[-train]^2)
+```
+# Regression tree
+
+```{r}
+library(tree)
+```
+
+Vamos a ajustar un árbol de regresión sobre la base de datos de editoriales. Con la muestra train, ajustamos el árbol a los datos de entrenamiento
+First, we create a training set, and fit the tree to the training data.
+
+```{r chunk14}
+set.seed(1)
+train2 <- sample(1:nrow(editoriales), nrow(editoriales / 2))
+tree.editoriales <- tree(reneco ~ .,
+                    editoriales,
+                    subset = train2)
+summary(tree.editoriales)
+```
+
+El summary nos indica que tenemos que usar 5 variables para construir el árbol. En el contexto del árbol de regresión, la desviación es la suma de los cuadrados de los errores del árbol. Veamos gráficamente el árbol.
+
+```{r chunk15}
+plot(tree.editoriales)
+text(tree.editoriales,
+     pretty = 0)
+```
+
+Vemos que la variable que nos ayuda a dividir los datos en grupos más iguales es el margen. 
+El punto de división del margen es 12,41. Si es mayor, el rendimiento será más alto, y si es menor, viceversa. En la parte superior del margen, la siguiente variable que permite sacar conclusiones es la rentabilidad financiera, y en menor medida fondos propios y endeudamiento. Las empresas con rentabilidad financiera más alta, tendrán una mayor rentabilidad económica. Las empresas menos endeudadas, tendrán una mauyor rentabilidad económica y fondos propios.
+
+Vamos a ver si con menos divisiones sacaríamos mejor resultado.
+
+```{r chunk16}
+cv.editoriales <- cv.tree(tree.editoriales)
+plot(cv.editoriales$size, cv.editoriales$dev, type = "b")
+```
+
+Nos nos hace falta reducir las divisiones para mejorar el árbol.
+
+Vamos a hacer las predicciones de la muestra de validación.
+
+```{r chunk18}
+library(stats)
+yhat <- predict(tree.editoriales,
+                newdata = editoriales[-train2, ])
+editoriales.test <- editoriales[-train2, "reneco"]
+plot(yhat, editoriales.test)
+abline(0, 1)
+mean((yhat - editoriales.test)^2)
+```
+
+In other words, the  test set MSE associated with the regression tree is $35.29$.
+The square root of the MSE is therefore around $5.941$, indicating that this model leads to test predictions that are (on average) within approximately $5{,}941$ of the true median home value for the census tract.
 
 # Clasificación
 
