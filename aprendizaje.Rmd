@@ -455,6 +455,7 @@ knn.predtest <- knn(train.X,
 table(knn.predtest, 
       tamaño5)
 (75+2+5) / 90
+
 ```
 
 # Conclusiones
@@ -475,4 +476,3 @@ En esta sección se recogen los datos de la sesión utilizada para elaborar este
 ```{r}
 sessionInfo()
 ```
-    
