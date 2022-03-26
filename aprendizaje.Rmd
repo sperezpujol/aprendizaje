@@ -357,6 +357,14 @@ tree.pred <- predict(tree.editoriales2,
     type = "class")
 table(tree.pred, 
       tamaño.test)
+
+tree.predtotal <- predict(tree.editoriales2, 
+                     editoriales,
+    type = "class")
+table(tree.predtotal, 
+      tamaño)
+(141+14+2+4)/200
+(308+10+7+14)/370
 ```
 
 
