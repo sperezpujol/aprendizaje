@@ -310,6 +310,8 @@ The square root of the MSE is therefore around $5.941$, indicating that this mod
 
 Elige una variable **categórica** de interés del conjunto de datos, que tenga sentido predecir a partir de las demás. Si estás usando los datos de RRHH, la empresa podría estar interesada en predecir el abandono en función de las demás. Haz algunos gráficos y resúmenes numéricos para explorar las relaciones (algunos del apartado de regresión servirán para este.
 
+Variable categórica: $tamaño$
+
 Ajusta **algunos** de los siguientes modelos que hemos aprendido en la asignatura con los datos de entrenamiento, y evalúa los errores en los dos conjuntos. Usa validación cruzada en aquellos en los que se haya usado en los _labs_:
 
 - KNN
@@ -330,6 +332,33 @@ Recuerda que aunque hay muchos modelos, el procedimiento es similar en todos:
 5. Comparar los modelos
 
 Empieza por dos modelos que te resultan más fáciles, y después ve probando más. No es obligatorio ajustarlos todos.
+
+```{r chunk1}
+library(tree)
+library(ISLR2)
+attach(editoriales)
+```
+
+KNN o Regresión logística
+
+Vamos a clasificar.
+
+```{r chunk8}
+set.seed(1)
+train3 <- sample(1:nrow(editoriales),
+                200)
+editoriales.test2 <- editoriales[-train3, ]
+tamaño.test <- tamaño[-train3]
+tree.editoriales2 <- tree(tamaño ~ . - emplea, 
+                         editoriales,
+    subset = train3)
+tree.pred <- predict(tree.editoriales2, 
+                     editoriales.test2,
+    type = "class")
+table(tree.pred, 
+      tamaño.test)
+```
+
 
 
 # Conclusiones
