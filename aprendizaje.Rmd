@@ -1,4 +1,4 @@
-**---
+---
 title: "Técnicas de Aprendizaje Estadístico aplicadas a empresas editoriales españolas"
 subtitle: "Máster Universitario en Modelización y Análisis de Datos Económicos <p> (MUMADE)"
 author: 'Autores: Bermann, M.A. & Pérez, R.S.'
@@ -455,5 +455,24 @@ knn.predtest <- knn(train.X,
 table(knn.predtest, 
       tamaño5)
 (75+2+5) / 90
+```
 
-```**
+# Conclusiones
+
+Incluid unas breves conclusiones, uno o dos párrafos comentando los resultados.
+
+
+# Referencias
+
+Podéis incluir anexos y referencias si queréis, aunque no es necesario para el objetivo de este trabajo
+
+# Anexos
+
+## Anexo 1. Datos de la sesión
+
+En esta sección se recogen los datos de la sesión utilizada para elaborar este informe. Es fundamental observar la versión de R, así como las versiones de los paquetes bajo los cuales se ha ejecutado el código o *script*.
+
+```{r}
+sessionInfo()
+```
+    
