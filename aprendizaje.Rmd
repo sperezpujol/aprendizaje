@@ -1,4 +1,4 @@
----
+**---
 title: "Técnicas de Aprendizaje Estadístico aplicadas a empresas editoriales españolas"
 subtitle: "Máster Universitario en Modelización y Análisis de Datos Económicos <p> (MUMADE)"
 author: 'Autores: Bermann, M.A. & Pérez, R.S.'
@@ -27,7 +27,7 @@ rm(list = ls())
 packages <- c("tidyr", "dplyr", "ggplot2", "knitr", 
               "readxl", "tibble", "kableExtra", "gt",
               "PerformanceAnalytics", "ez",
-              "GGally", "stats", "ggcorrplot")
+              "GGally", "stats", "ggcorrplot", "tree")
 installed_packages <- packages %in% 
   rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
@@ -49,6 +49,8 @@ library(GGally)
 library(corrplot)
 library(stats)
 library(ggcorrplot)
+library(tree)
+
 ```
 
 # Resumen 
@@ -370,6 +372,8 @@ table(tree.predtotal,
 # LOGISTIC REGRESSION # no nos vale de momento
 
 ```{r chunk9}
+train3<-c(rep(TRUE,280), rep(FALSE,90))
+?rep
 set.seed(1)
 attach(editoriales)
 train4 <- (apalanca > 5)
@@ -378,7 +382,7 @@ dim(editoriales3)
 tamaño2 <- tamaño[!train4]
 ```
 
-```{r, modelo lineal glm}
+```{r modelo lineal glm}
 glm.fits <- glm(
     beneficio ~ . - emplea,
     data = editoriales, 
@@ -435,31 +439,21 @@ train.tamaño <- tamaño[train3]
 
 ```{r chunk27}
 tamaño5 <- tamaño[!train3]
+tamaño6 <- tamaño[train3]
 set.seed(1)
-knn.pred <- knn(train.X,
+knn.predtrain <- knn(train.X,
+                train.X,
+                train.tamaño,
+                k = 4)
+table(knn.predtrain, 
+      tamaño6)
+(227+10+9+10)/280
+knn.predtest <- knn(train.X,
                 test.X,
                 train.tamaño,
-                k = 2)
-table(knn.pred, 
+                k = 4)
+table(knn.predtest, 
       tamaño5)
-(83 + 43) / 252
-```
+(75+2+5) / 90
 
-# Conclusiones
-
-Incluid unas breves conclusiones, uno o dos párrafos comentando los resultados.
-
-
-# Referencias
-
-Podéis incluir anexos y referencias si queréis, aunque no es necesario para el objetivo de este trabajo
-
-# Anexos
-
-## Anexo 1. Datos de la sesión
-
-En esta sección se recogen los datos de la sesión utilizada para elaborar este informe. Es fundamental observar la versión de R, así como las versiones de los paquetes bajo los cuales se ha ejecutado el código o *script*.
-
-```{r}
-sessionInfo()
-```
+```**
