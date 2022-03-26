@@ -293,7 +293,7 @@ Nos nos hace falta reducir las divisiones para mejorar el árbol.
 
 Vamos a hacer las predicciones de la muestra de validación.
 
-```{r chunk18}
+```{r chunk18, eval = FALSE}
 library(stats)
 yhat <- predict(tree.editoriales,
                 newdata = editoriales[-train2, ])
@@ -339,9 +339,9 @@ library(ISLR2)
 attach(editoriales)
 ```
 
-KNN o Regresión logística
+#ÁRBOL DE CLASIFICACIÓN
 
-Vamos a clasificar.
+Vamos a realizar un árbol de clasificación y una validación cruzada. El árbol de clasificación sobre la muestra de entrenamiento, arroja una predicción cuyo acierto es del 80,50%. Por ejemplo, predice 141 microempresas de forma exacta, y por otro lado, por ejemplo, predice una microempresa como empresa grande. Respecto a la predicción sobre el total de los datos considerados, el acierto aumenta a un 91,62%, un dato incluso superior que sobre la muestra de entrenamiento, fruto a que la muestra de entrenamiento seleccionada sea, seguramente, más difícil de predecir que si se hace, como hemos visto, sobre la muestra tota (puede ser por errores más altos).
 
 ```{r chunk8}
 set.seed(1)
@@ -357,7 +357,6 @@ tree.pred <- predict(tree.editoriales2,
     type = "class")
 table(tree.pred, 
       tamaño.test)
-
 tree.predtotal <- predict(tree.editoriales2, 
                      editoriales,
     type = "class")
@@ -368,6 +367,83 @@ table(tree.predtotal,
 ```
 
 
+# LOGISTIC REGRESSION # no nos vale de momento
+
+```{r chunk9}
+set.seed(1)
+attach(editoriales)
+train4 <- (apalanca > 5)
+editoriales3 <- editoriales[!train4, ]
+dim(editoriales3)
+tamaño2 <- tamaño[!train4]
+```
+
+```{r, modelo lineal glm}
+glm.fits <- glm(
+    beneficio ~ . - emplea,
+    data = editoriales, 
+    family = binomial, 
+    subset = train4
+  )
+glm.probs <- predict(glm.fits,
+                     editoriales3,
+    type = "response")
+```
+
+```{r chunk11}
+glm.pred <- rep("Beneficio", 197)
+glm.pred[glm.probs > .5] <- "Pérdida"
+table(glm.pred, tamaño2)
+mean(glm.pred == tamaño2)
+mean(glm.pred != tamaño2)
+```
+
+#KNN
+
+```{r chunk26}
+library(class)
+train.X <- cbind(reneco, 
+                 renfin, 
+                 liquidez, 
+                 solvencia, 
+                 ing, 
+                 endeuda, 
+                 emplea, 
+                 activo,
+                 fpios,
+                 res,
+                 ing,
+                 margen,
+                 apalanca,
+                 beneficio)[train3, ]
+test.X <- cbind(reneco, 
+                 renfin, 
+                 liquidez, 
+                 solvencia, 
+                 ing, 
+                 endeuda, 
+                 emplea, 
+                 activo,
+                 fpios,
+                 res,
+                 ing,
+                 margen,
+                 apalanca,
+                 beneficio)[!train3, ]
+train.tamaño <- tamaño[train3]
+```
+
+```{r chunk27}
+tamaño5 <- tamaño[!train3]
+set.seed(1)
+knn.pred <- knn(train.X,
+                test.X,
+                train.tamaño,
+                k = 2)
+table(knn.pred, 
+      tamaño5)
+(83 + 43) / 252
+```
 
 # Conclusiones
 
