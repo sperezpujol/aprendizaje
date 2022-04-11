@@ -63,26 +63,6 @@ Párrafo único
 # Importando la obra del Proyecto Gutenberg
 olivertwist <- 
   gutenberg_download(c(730))
-```
-
-```{r}
-# Ajustándonos al principio y final de la novela
-text_olivertwist <-
-  olivertwist %>% 
-  slice((114:18813)) %>% 
-  select(2) %>% 
-  pull() %>%
-  map(trimws) %>%
-  ifelse(. == "", "_salto_", .) %>%
-  paste0(., collapse = " ") %>%
-  strsplit(split = "_salto_") %>%
-  map(trimws) %>%
-  data.frame(stringsAsFactors = FALSE) %>%
-  as_tibble() %>%
-  {
-    names(.) <- "texto"
-    .
-  }
 
 # Tokenizando y eliminando palabras vacías
 tidy_olivertwist <- 
@@ -97,6 +77,26 @@ summary(tidy_olivertwist)
 tidy_olivertwist %>%
   count(word,
         sort = TRUE)
+```
+
+```{r}
+# Ajustándonos al principio y final de la novela y otros ajustes
+text_olivertwist <-
+  tidy_olivertwist %>% 
+  slice((114:18813)) %>% 
+  select(2) %>% 
+  pull() %>%
+  map(trimws) %>%
+  ifelse(. == "", "_salto_", .) %>%
+  paste0(., collapse = " ") %>%
+  strsplit(split = "_salto_") %>%
+  map(trimws) %>%
+  data.frame(stringsAsFactors = FALSE) %>%
+  as_tibble() %>%
+  {
+    names(.) <- "texto"
+    .
+  }
 ```
 
 
