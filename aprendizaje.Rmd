@@ -10,6 +10,8 @@ output:
 lang: es
 ---
 
+# Configuraciones iniciales
+
 ```{r setup, include = FALSE}
 # Ajustes de los chunk
 knitr::opts_chunk$set(echo = FALSE, 
@@ -24,10 +26,23 @@ knitr::opts_chunk$set(echo = FALSE,
 rm(list = ls())
 
 # Instalación de paquetes que no estén instalados
-packages <- c("tidyr", "dplyr", "ggplot2", "knitr", 
-              "readxl", "tibble", "kableExtra", "gt",
-              "PerformanceAnalytics", "ez",
-              "GGally", "stats", "ggcorrplot", "tree")
+packages <- c("tidyr",
+              "dplyr",
+              "ggplot2",
+              "knitr", 
+              "readxl",
+              "tibble",
+              "kableExtra",
+              "gt",
+              "PerformanceAnalytics",
+              "ez",
+              "GGally",
+              "stats",
+              "ggcorrplot",
+              "tree",
+              "car",
+              "ISLR2",
+              "stats")
 installed_packages <- packages %in% 
   rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
@@ -50,6 +65,8 @@ library(corrplot)
 library(stats)
 library(ggcorrplot)
 library(tree)
+library(car)
+library(ISLR2)
 ```
 
 # Resumen 
@@ -58,20 +75,20 @@ Las empresass editoriales están en una transición donde el papel se está vien
 
 # Importación y tratamiento de datos
 
-Se han utilizado datos de *370 empresas editoriales españolas*, extraídas de la base de datos empresariales Sabi (licencia: [UCLM][https://www.biblioteca.uclm.es/encuentra-informacion/recursos/basesdedatos]), y obteniéndose un _dataset_ bidimensional sobre las editoriales españolas. Su dimensión es de 370 x 15, con una columna identificativa con el nombre de empresa y un conjunto de variables económicas, siendo éstas:
+Se han utilizado datos de **370 empresas editoriales españolas**, extraídas de la base de datos empresariales Sabi (licencia: [UCLM](https://www.biblioteca.uclm.es/encuentra-informacion/recursos/basesdedatos)), y obteniéndose un _dataset_ bidimensional sobre las editoriales españolas. Su dimensión es de 370 x 15, con una columna identificativa con el nombre de empresa y un conjunto de variables económicas, siendo éstas:
 
-  + *reneco*: la rentabilidad económica de la empresa. Es el resultado de dividir el resultado del ejercicio entre los activos empresariales.
-  + *renfin*: la rentabilidad financiera de la empresa. Es el resultado de dividir el resultado del ejercicio entre los fondos propios.
-  + *liquidez*: la liquidez de la empresa. Es el resultado de dividir los activos líquidos de la empresa entre sus deudas.
-  + *endeuda*: el nivel de endeudamiento de la empresa. Es el resultado de dividir las deudas entre el total de activos.
-  + *fpios*: fondos propios. Cantidad absoluta, en miles de euros, de fondos propios de la empresa.
+  + **reneco**: la rentabilidad económica de la empresa. Es el resultado de dividir el resultado del ejercicio entre los activos empresariales.
+  + **renfin**: la rentabilidad financiera de la empresa. Es el resultado de dividir el resultado del ejercicio entre los fondos propios.
+  + **liquidez**: la liquidez de la empresa. Es el resultado de dividir los activos líquidos de la empresa entre sus deudas.
+  + **endeuda**: el nivel de endeudamiento de la empresa. Es el resultado de dividir las deudas entre el total de activos.
+  + **fpios**: fondos propios. Cantidad absoluta, en miles de euros, de fondos propios de la empresa.
  + *res*: resultado del ejercicio. Resultado del ejercicio absoluto, en miles de euros. 
  + *ing*: ingresos de explotación. Ingresos del ejercicio absolutos, en miles de euros.
- + *margen*: margen financiero. Es el resultado de dividir el resultado del ejercicio entre los ingressos de explotación.
- + *solvencia*: ratio de solvencia. Es el resultado de dividir el activo a corto plazo entre el pasivo a corto plazo, indicando la capacidad de la empresa de pagar sus deudas a corto plazo. 
- + *apalanca*: apalancamiento. Es el resultado de dividir la deuda entre los fondos propios.
- + *tamaño*: Tamaño de la empresa. Para generar esta variable cualitativa, hemos clasificado las empresas según el número de trabajadores.
- + *beneficio*: beneficio de la empresa. Hemos generado esta variable binaria según si la empresa tiene beneficios o pérdidas durante el ejercicio. 1 indica la existencia de beneficios, y 0 de pérdidas.
+ + **margen*: margen financiero. Es el resultado de dividir el resultado del ejercicio entre los ingressos de explotación.
+ + **solvencia**: ratio de solvencia. Es el resultado de dividir el activo a corto plazo entre el pasivo a corto plazo, indicando la capacidad de la empresa de pagar sus deudas a corto plazo. 
+ + **apalanca**: apalancamiento. Es el resultado de dividir la deuda entre los fondos propios.
+ + **tamaño**: Tamaño de la empresa. Para generar esta variable cualitativa, hemos clasificado las empresas según el número de trabajadores.
+ + **beneficio**: beneficio de la empresa. Hemos generado esta variable binaria según si la empresa tiene beneficios o pérdidas durante el ejercicio. 1 indica la existencia de beneficios, y 0 de pérdidas.
 
 ```{r importacion, include = FALSE}
 # Importando los datos de un archivo .rds
@@ -92,14 +109,14 @@ editoriales$tamaño <-
                     "grande"))
 ```
 
-Cabe decir que se han dividido los datos en un conjunto de *entrenamiento* (train) y otro de *validación* (test), para lo que se ha dijado la semilla para que el resultado sea, oportunamente reproducible.
+Cabe decir que se han dividido los datos en un conjunto de **entrenamiento** (train) y otro de **validación** (test), para lo que se ha dijado la semilla para que el resultado sea, oportunamente reproducible.
 
 ```{r division, include = FALSE}
 # Partiendo la muestra en test y train
-library(ISLR2)
 set.seed(1)
-train <- sample(300,
-                70)
+train <- 
+  sample(300,
+         70)
 ```
 
 # Análisis exploratorio de datos
@@ -108,7 +125,7 @@ En este primer capítulo de va a proceder a realizar un análisis exploratorio d
 
 ## Análisis de correlaciones
 
-Así, si recurrimos, en primer lugar, a una visualización de las correlaciones entre las variables, encontramos que las mayores correlaciones positivas se dan entre activo y fondos propios y activo e ingresos de explotación. También parece considerable la correlación positiva entre la variable que recoge las empresas de tamaño grande y su relación con el número de empleados y los ingresos de explotación, lo que parece algo evidente. Por su parte, las mayores correlaciones negativas.
+Así, si recurrimos, en primer lugar, a una **visualización de las correlaciones** entre las variables, encontramos que las mayores correlaciones positivas se dan entre activo y fondos propios y activo e ingresos de explotación. También parece considerable la correlación positiva entre la variable que recoge las empresas de tamaño grande y su relación con el número de empleados y los ingresos de explotación, lo que parece algo evidente. Por su parte, las mayores correlaciones negativas.
 
 ```{r correlaciones, fig.width = 10, fig.height = 5}
 # ANALISIS DE CORRELACIONES
@@ -125,7 +142,7 @@ model.matrix(~0+.,
 
 En este apartado estamos interesados en ver cómo se distribuyen los datos de algunas de las variables del dataset utilizado. Veamos algunos ejemplos.
 
-  + Si observamos la dispersión de la *variable emplea* (número de empleados), podremos ver que hay una serie empresas, de las analizadas, que tienen un gran número de empleados. No obstante, al no ser una medida relativa, procedamos a plantear un gráfico de dispersión de una variable relativa. 
+  + Si observamos la dispersión de la **variable emplea** (número de empleados), podremos ver que hay una serie empresas, de las analizadas, que tienen un gran número de empleados. No obstante, al no ser una medida relativa, procedamos a plantear un gráfico de dispersión de una variable relativa. 
 
 ```{r dispersion1, fig.width = 10, fig.height = 7}
 # DISPERSION EMPLEA
@@ -145,7 +162,7 @@ ggplot(data = editoriales,
                                    vjust = 1))
 ```
 
-  + En cuanto a la distribución de la *variable renfin* (rentabilidad financiera), se observa que la mayor parte de las editoriales, sitúan su rentabilidad financiera en torno a 0, aunque, no obstante, se siguen observando bastantes casos que despuntan. Ya que la media es positiva, es decir, los resultados de la muestra de rentabilidad financiera está sesgada en términos positivos, es una señal de que las empresas editoriales tienen una buena capacidad de generar beneficios a través de sus fondos propios. No obstante, esto podría venir dado por la influencia de grandes empresas que empujan a la muestra a tener un sesgo positivo, pues gráficamente observamos también algunos casos atípicos o influyentes que despuntan por la parte inferior de la media.
+  + En cuanto a la distribución de la **variable renfin** (rentabilidad financiera), se observa que la mayor parte de las editoriales, sitúan su rentabilidad financiera en torno a 0, aunque, no obstante, se siguen observando bastantes casos que despuntan. Ya que la media es positiva, es decir, los resultados de la muestra de rentabilidad financiera está sesgada en términos positivos, es una señal de que las empresas editoriales tienen una buena capacidad de generar beneficios a través de sus fondos propios. No obstante, esto podría venir dado por la influencia de grandes empresas que empujan a la muestra a tener un sesgo positivo, pues gráficamente observamos también algunos casos atípicos o influyentes que despuntan por la parte inferior de la media.
 
 ```{r dispersion2, fig.width = 10, fig.height = 7}
 # DISPERSION RENFIN
@@ -165,7 +182,7 @@ ggplot(data = editoriales,
                                    vjust = 1))
 ```
 
-  + Podemos plantear también los llamados *gráficos de cajas*. Si lo hacemos para la variable *renfin* observamos como la mayor parte de datos atípicos se sitúan en la zona positiva de valor, pues también encontramos numerosos atípicos pero se sitúan mucho más centrados en torno a la media.
+  + Podemos plantear también los llamados **gráficos de cajas**. Si lo hacemos para la variable **renfin** observamos como la mayor parte de datos atípicos se sitúan en la zona positiva de valor, pues también encontramos numerosos atípicos pero se sitúan mucho más centrados en torno a la media.
   
 ```{r boxplot1, fig.width = 10, fig.height = 4}
 # GRAFICO CAJAS RENFIN
@@ -184,7 +201,7 @@ ggplot(data = editoriales,
   theme_light()
 ```
 
- + Si observamos un gráfico de cajas, pero en este caso viendo la relación entre *tamaño* (tamaño) y *renfin* (rentabilidad financiera), observamos que las microempresas, son las que, al tener un nivel de activos inferior, presentan mayor variación en términos de rentabilidad financiera.
+ + Si observamos un gráfico de cajas, pero en este caso viendo la relación entre **tamaño** (tamaño) y **renfin** (rentabilidad financiera), observamos que las microempresas, son las que, al tener un nivel de activos inferior, presentan mayor variación en términos de rentabilidad financiera.
 
 ```{r boxplot2, fig.width = 10, fig.height = 4}
 # GRAFICO CAJAS POR GRUPOS TAMAÑO Y RENFIN
@@ -206,7 +223,7 @@ ggplot(editoriales,
 
 ## Análisis de medias por grupos
 
-Por último, hemos planteado un *análisis de medias por grupos*. Así, si analizamos los resultados de apalancamiento teniendo en cuenta el *beneficio* y *tamaño* de la empresa, las empresas medianas y las microempresas, tal y como hemos visto en los gráficos de cajas anteriores, se ven afectadas de forma severa por los valores atípicos (outliers), a diferencia de las empresas pequeñas y grandes. Las empresas medianas, si nos fijamos, tienen outliers por abajo, y las microempresas por arriba y por abajo. Esto explica que las empresas medianas con beneficio positivo, no tengan tampoco un dato alto o como cabría esperar de renfin (rentabilidad financiera).
+Por último, hemos planteado un **análisis de medias por grupos**. Así, si analizamos los resultados de apalancamiento teniendo en cuenta el **beneficio** y **tamaño** de la empresa, las empresas medianas y las microempresas, tal y como hemos visto en los gráficos de cajas anteriores, se ven afectadas de forma severa por los valores atípicos (outliers), a diferencia de las empresas pequeñas y grandes. Las empresas medianas, si nos fijamos, tienen outliers por abajo, y las microempresas por arriba y por abajo. Esto explica que las empresas medianas con beneficio positivo, no tengan tampoco un dato alto o como cabría esperar de renfin (rentabilidad financiera).
 
 ```{r medias}
 # MEDIAS POR GRUPOS
@@ -214,116 +231,107 @@ editoriales %>%
   group_by(beneficio, 
            tamaño) %>%
   summarise_at(vars(renfin), 
-               list(name = mean))
+               list(name = mean)) %>% 
+  kable()
 ```
 
 # Ajuste y predicción de modelos
 
-Tras haber analizado de forma exploratoria algunas de las variables consideradas en el dataset, se ha escogido la variable *renfin* (rentabilidad financiera), como variable numérica de interés, con el objetivo de predecirla a partir de las demás a través de los distintos tipos de modelos y técnicas de ajuste.
+Tras haber analizado de forma exploratoria algunas de las variables consideradas en el dataset, en este segundo capítulo, se ha escogido la variable **renfin** (rentabilidad financiera), como variable numérica de interés, con el objetivo de predecirla a partir de las demás a través de los distintos tipos de modelos y técnicas de ajuste.
 
-Así, el modelo de partido será el que realice una predicción de *reneco* (rentabilidad financiera), en función del *tamaño* (tamaño de la empresa), *ing* (ingresos de explotación) y *activo* (activo de la empresa).
+Así, el modelo de partido será el que realice una predicción de **reneco** (rentabilidad financiera), en función del **solvencia** (solvencia de la empresa), **apalanca** (apalancamiento) y **endeuda** (endeudamiento).
 
-$renfin = f(tamaño, ing, activo)$
+$renfin = f(solvencia, apalanca, endeuda)$
 
-Para desarrollar las técnicas y ajustes de modelos, se escogerán diferentes opciones de entre las que a continuación se detallan, ajustando dichos modelos con los datos de entrenamiento (train) y se evaluarán cada uno de ellos, sus errores, tanto en el conjunto de entrenamiento (train) como de validació (test). En algunos de ellos, es posible que se deba realizar validación cruzada.
+Para desarrollar las técnicas y ajustes de modelos, se escogerán diferentes opciones (en negrita) de entre las que a continuación se detallan, ajustando dichos modelos con los datos de entrenamiento (train) y se evaluarán cada uno de ellos, sus errores, tanto en el conjunto de entrenamiento (train) como de validació (test). En algunos de ellos, es posible que se deba realizar validación cruzada.
 
   + KNN
-  + Regresión lineal múltiple
-  + Regresión lineal múltiple con selección de variables
+  + **Regresión lineal múltiple**
+  + **Regresión lineal múltiple con selección de variables**
   + Regresión de Ridge
   + Lasso
   + GAM
   + PCR
   + PLS
-  + Árbol de regresión
+  + **Árbol de regresión**
   + Árboles usando bagging y boosting
   + Random Forests
   + SVMs
 
-La realización de estas técnicas y ajustes de modelos, revela, de forma preliminar, que el mejor modelo para predecir *renfin* (rentabilidad financiera) es el ##################.
+La realización de estas técnicas y ajustes de modelos, revela, de forma preliminar, que el mejor modelo para predecir **renfin** (rentabilidad financiera) es el ##################.
 
 ## Regresión Lineal Múltiple / Multiple Linear Regression
 
-Se procede a construir un modelo de regresión múltiple, estimado a través de mínimos cuadrados. Primero estimamos con todas las variables.
+En primer lugar, se propone construir un **modelo de regresión múltiple**, el cual se estimará a través de mínimos cuadrados. 
 
-```{r}
-lm1.fit <- lm(reneco ~ ., 
+  +   La **primera estimación** con todas las variables consideradas en el dataset arroja una capacidad predictiva alta (véase el coeficiente de determinación ajustado), algo que resulta evidente si se tiene en cuenta que se han considerado todas las exógenas. Veamos la alta significación de variables como apalanca, solvencia, margen, res, activo, endeuda o reneco, todas relacionadas directa, o indirectamente, en términos de contabilidad y relaciones económicas, con la rentabilidad financiera. No supondrá esta cuestión problemas de multicolinealidad si recordamos el análisis de correlaciones, pues la variable renfin no presentaba altas correlaciones positivas o negativas con ninguna variable en concreto. Por otra parte, si se observan los valores del índice de **inflación de la varianza (vif)**, se observa que únicamente dos variables podrían dar problemas de multicolinealidad (emplea y res) al ser su valor superior a 4 (aunque el análisis gráfico de correlaciones no lo mostrara).
+
+```{r rlm1}
+# Multiple Linear Regression (ALL ITEMS)
+lm1.fit <- lm(renfin ~ ., 
               data = editoriales,
               subset = train)
 summary(lm1.fit)
-```
-```{r}
-library(car)
 vif(lm1.fit)
 ```
 
-Segundo, acotamos las variables explicativas
+  +   En la **segunda estimación** se acota la estimación considerando la ecuación inicial propuesta ($renfin = f(solvencia, apalanca, endeuda)$), donde la capacidad predictiva baja de forma notable respecto a la primera ecuación, aunque se puede considerar una buena capacidad explicativa del modelo a la hora de determinar las relaciones entre las exógenas y la variable dependiente. Se observa cómo las tres variables se relacionan positivamente con la rentabilidad financiera. Esto significa que la emprea consigue a través de determinados recursos financieros concretos mejorar sus resultados, en este caso el financiero, al relacionarse positivamente con el apalancamiento. Por otra parte, la solvencia también permite mejorar la rentabilidad financiera, es decir, el desahogo financiero (capacidad de hacer frenta a los pagos o pasivos a corto plazo) le permite mejorar su situación de renfin. Y por último, el endeudamiento, que puede venir dado por el uso de esos recursos financieros extraordinarios mencionados, hace a la empresa también tener mejor situación de renfin. En este caso el análisis de inflación de la varianza (vif) sí que muestra síntomas de que pudieran existir problemas de colinealidad por sus elevados valores superiores a 4 para el caso de solvencia y endeuda.
 
-```{r chunk14}
-lm2.fit <- lm(reneco ~ beneficio + res + fpios + solvencia,
+```{r rlm2}
+# Multiple Linear Regression
+lm2.fit <- lm(renfin ~ solvencia + apalanca + endeuda,
              data = editoriales,
              subset = train)
 summary(lm2.fit)
-```
-
-Observamos buenos datos de significación, es decir, de relación de variables, aunque la capacidad predictiva del modelo es bastante baja.
-
-A continuación, observamos valores altos del vif para algunas variables (endeuda, activo, fpios, ing, solvencia), lo que evidencia problemas de colinealidad en algunas variables.
-
-```{r}
-library(car)
 vif(lm2.fit)
 ```
 
-Ahora procederemos a la validación del modelo de regresión múltiple. En este punto, calculamos el error medio del modelo generado, utilizando información de la muestra de entrenamiento.
+  +   Por último, se procede a la **validación del modelo de regresión múltiple**. En este punto, calculamos el error medio del modelo generado, utilizando información de la muestra de entrenamiento.
 
-```{r}
+```{r rlm2error}
+# Multiple Linear Regression ERROR
 attach(editoriales)
 mean((reneco - predict(lm2.fit, 
                        editoriales))[-train]^2)
 ```
-# Regression tree
 
-```{r}
-library(tree)
-```
+## Árbol de regresión / Regression tree
 
-Vamos a ajustar un árbol de regresión sobre la base de datos de editoriales. Con la muestra train, ajustamos el árbol a los datos de entrenamiento
-First, we create a training set, and fit the tree to the training data.
+En este segundo apartado se va a proceder a ajustar un **árbol de regresión** sobre la base de datos de editoriales que se está utilizando.
 
-```{r chunk14}
+  +   En primer lugar, se creala muestra de entrenamiento y se ajusta el árbol a los datos de entrenamiento. Los resultados nos indican que tenemos que usar 5 variables para construir el árbol. En el contexto del árbol de regresión, la desviación es la suma de los cuadrados de los errores del árbol.
+  
+```{r tree1}
 set.seed(1)
-train2 <- sample(1:nrow(editoriales), nrow(editoriales / 2))
+train2 <- sample(1:nrow(editoriales),
+                 nrow(editoriales / 2))
 tree.editoriales <- tree(reneco ~ .,
                     editoriales,
                     subset = train2)
 summary(tree.editoriales)
 ```
 
-El summary nos indica que tenemos que usar 5 variables para construir el árbol. En el contexto del árbol de regresión, la desviación es la suma de los cuadrados de los errores del árbol. Veamos gráficamente el árbol.
+  + A continuación, se puede **visualizar gráficamente el árbol**. Vemos que la variable que nos ayuda a dividir los datos en grupos más iguales es el margen. El punto de división del margen es 12,41. Si es mayor, el rendimiento será más alto, y si es menor, viceversa. En la parte superior del margen, la siguiente variable que permite sacar conclusiones es la rentabilidad financiera, y en menor medida fondos propios y endeudamiento. Las empresas con rentabilidad financiera más alta, tendrán una mayor rentabilidad económica. Las empresas menos endeudadas, tendrán una mayor rentabilidad económica y fondos propios.
 
-```{r chunk15}
+```{r plot_tree1, fig.width = 10, fig.height = 4}
 plot(tree.editoriales)
 text(tree.editoriales,
      pretty = 0)
 ```
 
-Vemos que la variable que nos ayuda a dividir los datos en grupos más iguales es el margen. 
-El punto de división del margen es 12,41. Si es mayor, el rendimiento será más alto, y si es menor, viceversa. En la parte superior del margen, la siguiente variable que permite sacar conclusiones es la rentabilidad financiera, y en menor medida fondos propios y endeudamiento. Las empresas con rentabilidad financiera más alta, tendrán una mayor rentabilidad económica. Las empresas menos endeudadas, tendrán una mauyor rentabilidad económica y fondos propios.
-
-Vamos a ver si con menos divisiones sacaríamos mejor resultado.
-
-```{r chunk16}
-cv.editoriales <- cv.tree(tree.editoriales)
-plot(cv.editoriales$size, cv.editoriales$dev, type = "b")
+  +   En este punto, cabe plantearse si reducir las divisiones permite mejorar los resultados obtenidos. Se observa que no es necesario reducir las divisiones para mejorar el árbol al observar el siguiente gráfico.
+  
+```{r plot_tree2, fig.width = 10, fig.height = 4}
+cv.editoriales <- 
+  cv.tree(tree.editoriales)
+plot(cv.editoriales$size, 
+     cv.editoriales$dev, 
+     type = "b")
 ```
 
-Nos nos hace falta reducir las divisiones para mejorar el árbol.
+  + Ya se pueden realizar las **predicciones de la muestra de validación**. ################ ESTÁ MAL DE MOMENTO
 
-Vamos a hacer las predicciones de la muestra de validación.
-
-```{r chunk18, eval = FALSE}
-library(stats)
+```{r tree_pred, eval = FALSE}
 yhat <- predict(tree.editoriales,
                 newdata = editoriales[-train2, ])
 editoriales.test <- editoriales[-train2, "reneco"]
@@ -332,43 +340,37 @@ abline(0, 1)
 mean((yhat - editoriales.test)^2)
 ```
 
-In other words, the  test set MSE associated with the regression tree is $35.29$.
-The square root of the MSE is therefore around $5.941$, indicating that this model leads to test predictions that are (on average) within approximately $5{,}941$ of the true median home value for the census tract.
+En otras palabras, el MSE del conjunto de prueba asociado con el árbol de regresión es de $35,29$.
+Por lo tanto, la raíz cuadrada del MSE es de alrededor de $5.941$, lo que indica que este modelo conduce a predicciones de prueba que están (en promedio) dentro de aproximadamente $5{,}941$ del valor medio real de la vivienda para el distrito censal.
 
 # Clasificación
 
-Elige una variable **categórica** de interés del conjunto de datos, que tenga sentido predecir a partir de las demás. Si estás usando los datos de RRHH, la empresa podría estar interesada en predecir el abandono en función de las demás. Haz algunos gráficos y resúmenes numéricos para explorar las relaciones (algunos del apartado de regresión servirán para este.
+En este tercer capítulo, se ha escogido la variable **tamaño** como una variable **categórica**, para predecir a partir del resto de las consideradas.
 
-Variable categórica: $tamaño$
+Para desarrollar las técnicas y ajustes de modelos, se escogerán diferentes opciones (en negrita) de entre las que a continuación se detallan, ajustando dichos modelos con los datos de entrenamiento (train) y se evaluarán cada uno de ellos, sus errores, tanto en el conjunto de entrenamiento (train) como de validació (test). En algunos de ellos, es posible que se deba realizar validación cruzada.
 
-Ajusta **algunos** de los siguientes modelos que hemos aprendido en la asignatura con los datos de entrenamiento, y evalúa los errores en los dos conjuntos. Usa validación cruzada en aquellos en los que se haya usado en los _labs_:
-
-- KNN
-- Regresión Logística
+- **KNN**
+- **Regresión Logística**
 - Discriminante lineal y cuadrático
 - GAM para respuesta categórica
-- Árbol de regresión
+- **Árbol de regresión**
 - Árboles usando bagging y boosting
 - Random Forests
 - SVMs
 
-Recuerda que aunque hay muchos modelos, el procedimiento es similar en todos:
+Recordemos que el procedimiento genérico de ajuste de modelos suele seguir la siguiente estructuración:
 
-1. Ajustar modelo en datos _train_
-2. Predecir respuesta en datos _test_
-3. Evaluar el error en datos _test_ y _train_
-4. Repetir para distintos modelos
-5. Comparar los modelos
+  1. Ajustar modelo en datos _train_
+  2. Predecir respuesta en datos _test_
+  3. Evaluar el error en datos _test_ y _train_
+  4. Repetir para distintos modelos
+  5. Comparar los modelos
 
-Empieza por dos modelos que te resultan más fáciles, y después ve probando más. No es obligatorio ajustarlos todos.
-
-```{r chunk1}
-library(tree)
-library(ISLR2)
+```{r class1, include = FALSE }
 attach(editoriales)
 ```
 
-#ÁRBOL DE CLASIFICACIÓN
+## Árbol de clasificación / Classification tree
 
 Vamos a realizar un árbol de clasificación y una validación cruzada. El árbol de clasificación sobre la muestra de entrenamiento, arroja una predicción cuyo acierto es del 80,50%. Por ejemplo, predice 141 microempresas de forma exacta, y por otro lado, por ejemplo, predice una microempresa como empresa grande. Respecto a la predicción sobre el total de los datos considerados, el acierto aumenta a un 91,62%, un dato incluso superior que sobre la muestra de entrenamiento, fruto a que la muestra de entrenamiento seleccionada sea, seguramente, más difícil de predecir que si se hace, como hemos visto, sobre la muestra tota (puede ser por errores más altos).
 
@@ -395,8 +397,7 @@ table(tree.predtotal,
 (308+10+7+14)/370
 ```
 
-
-# LOGISTIC REGRESSION # no nos vale de momento
+## Regresión logística / Logistic regression # no nos vale de momento
 
 ```{r chunk9}
 train3<-c(rep(TRUE,280), rep(FALSE,90))
@@ -429,7 +430,7 @@ mean(glm.pred == tamaño2)
 mean(glm.pred != tamaño2)
 ```
 
-#KNN
+## KNN
 
 ```{r chunk26}
 library(class)
@@ -492,11 +493,13 @@ En este punto cabe decir que el método de k-vecinos sería mejor a la hora de p
 
 # Conclusiones
 
-Incluid unas breves conclusiones, uno o dos párrafos comentando los resultados.
+Párrafo 1
+
+Párrafo 2
 
 # Referencias
 
-Podéis incluir anexos y referencias si queréis, aunque no es necesario para el objetivo de este trabajo
+En esta sección se incluyen las referencias bibliográficas utilizadas para el desarrollo del proyecto.
 
 # Anexos
 
