@@ -41,7 +41,8 @@ packages <- c("tidyr",
               "car",
               "ISLR2",
               "stats",
-              "class")
+              "class",
+              "e1071")
 installed_packages <- packages %in% 
   rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
@@ -67,6 +68,7 @@ library(tree)
 library(car)
 library(ISLR2)
 library(class)
+library(e1071)
 ```
 
 # Resumen 
@@ -354,13 +356,13 @@ En este tercer capítulo, se ha escogido la variable **tamaño** como una variab
 Para desarrollar las técnicas y ajustes de modelos, se escogerán diferentes opciones (en negrita) de entre las que a continuación se detallan, ajustando dichos modelos con los datos de entrenamiento (train) y se evaluarán cada uno de ellos, sus errores, tanto en el conjunto de entrenamiento (train) como de validació (test). En algunos de ellos, es posible que se deba realizar validación cruzada.
 
 - **KNN**
-- **Regresión Logística**
+- Regresión Logística
 - Discriminante lineal y cuadrático
 - GAM para respuesta categórica
 - **Árbol de regresión**
 - Árboles usando bagging y boosting
 - Random Forests
-- SVMs
+- **SVMs**
 
 Recordemos que el procedimiento genérico de ajuste de modelos suele seguir la siguiente estructuración:
 
@@ -413,10 +415,33 @@ table(tree.predtotal,
 (308+10+7+14)/370
 ```
 
+## SVM
+
+A continuación, tras haber realizado el árbol de clasificación, y haber observado su capacidad predictiva, se opta por un ***Support Vector Machine* (SVM)**.
+
+  + Dicha metodología nos muestra cómo el modelo pierde capacidad predictiva respecto al árbol de clasificación en el total del conjunto (en la muestra de test tiene un 89% de acierto frente el 91% obtenido mediante un método de árbol de clasificación en el total del conjunto). Esto supone perder, además, interpretabilidad, con lo que vamos a plantear utilizar otro modelo.
+  
+```{r svm}
+set.seed(1)
+fit.svm <- svm(tamaño ~., 
+               data = editoriales, 
+               kernel = "linear", 
+               cost = 0.1, 
+               scale = TRUE, 
+               subset = train3)
+
+svm.predtotal <- 
+  predict(fit.svm, 
+          editoriales,
+    type = "class")
+table(svm.predtotal, 
+      tamaño)
+(311+3+3+15)/370
+```
 
 ## KNN
 
-En este tercer apartado, se ha realizado una predicción utilizando el método de *k-vecinos*, obteniendo resultados para ambas muestras (validación y estimación), escogiéndose 4 grupos de k-vecinos al tener 4 tipos de empresas **tamaño** (tamaños de empresas).
+En este tercer, y último intento, se ha realizado una predicción utilizando el método de *k-vecinos*, obteniendo resultados para ambas muestras (entrenamiento y validación), escogiéndose 4 grupos de k-vecinos al tener 4 tipos de empresas **tamaño** (tamaños de empresas).
 
   +   Los resultados arrojan, para ambas muestras, un acierto en la predicción de entorno al 90%, algo ligeramente superior en la muestra de entrenamiento. 
   + Si se compara con la predicción del árbol de clasificación (91,6% en muestra de validación), se observa que el método de k-vecinos es mínimamente peor que el árbol de clasificación. Por otro lado, de forma complementaria, cabe decir que el árbol de clasificación acertaba en la predicción un 80,5%, mientras que el método de k-vecinos es prácticamente un 10% superior (91,40%). 
@@ -489,45 +514,6 @@ table(knn.predtest,
       tamaño5)
 (75+2+5)/90
 ```
-
-
-
-## Regresión logística / Logistic regression # no nos vale de momento
-
-```{r chunk9}
-train3 <-
-  c(rep(TRUE,
-        280),
-    rep(FALSE,
-        90))
-set.seed(1)
-attach(editoriales)
-train4 <- (apalanca > 5)
-editoriales3 <- editoriales[!train4, ]
-dim(editoriales3)
-tamaño2 <- tamaño[!train4]
-```
-
-```{r modelo lineal glm}
-glm.fits <- glm(
-    beneficio ~ . - emplea,
-    data = editoriales, 
-    family = binomial, 
-    subset = train4
-  )
-glm.probs <- predict(glm.fits,
-                     editoriales3,
-    type = "response")
-```
-
-```{r chunk11}
-glm.pred <- rep("Beneficio", 197)
-glm.pred[glm.probs > .5] <- "Pérdida"
-table(glm.pred, tamaño2)
-mean(glm.pred == tamaño2)
-mean(glm.pred != tamaño2)
-```
-
 
 # Conclusiones
 
