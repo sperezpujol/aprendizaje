@@ -40,7 +40,8 @@ packages <- c("tidyr",
               "tree",
               "car",
               "ISLR2",
-              "stats")
+              "stats",
+              "class")
 installed_packages <- packages %in% 
   rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
@@ -65,6 +66,7 @@ library(ggcorrplot)
 library(tree)
 library(car)
 library(ISLR2)
+library(class)
 ```
 
 # Resumen 
@@ -301,11 +303,13 @@ En este segundo apartado se va a proceder a ajustar un **árbol de regresión** 
   
 ```{r tree1}
 set.seed(1)
-train2 <- sample(1:nrow(editoriales), 
-                 nrow(editoriales) / 2)
-tree.editoriales <- tree(reneco ~ .,
-                    editoriales,
-                    subset = train2)
+train2 <- 
+  sample(1:nrow(editoriales), 
+         nrow(editoriales) / 2)
+tree.editoriales <- 
+  tree(reneco ~ .,
+       editoriales,
+       subset = train2)
 summary(tree.editoriales)
 ```
 
@@ -327,11 +331,12 @@ plot(cv.editoriales$size,
      type = "b")
 ```
 
-  + Ya se pueden realizar las **predicciones de la muestra de validación**. En primer lugar, si se observa el gráfico, el modelo captura de forma bastante aceptable los subgrupos y, si bien un árbol de regresión, al trabajar con medias de subgrupos, puede tener un mayor error, ahora se procederá a comparar con el resto. Respecto al dato del error medio obtenido, muestra que el modelo es mejor que el de regresión lineal múltiple.
+  + Ya se pueden realizar las **predicciones de la muestra de validación**. En primer lugar, si se observa el gráfico, el modelo captura de forma bastante aceptable los subgrupos y, si bien un árbol de regresión, al trabajar con medias de subgrupos, puede tener un mayor error, ahora se procederá a comparar con el resto. Respecto al dato del error medio obtenido, el MSE del conjunto de prueba asociado con el árbol de regresión es de 76,31, muestra que el modelo es mejor que el de regresión lineal múltiple.
 
 ```{r tree_pred, fig.width = 10, fig.height = 4}
-yhat <- predict(tree.editoriales,
-                newdata = editoriales[-train2, ])
+yhat <- 
+  predict(tree.editoriales,
+          newdata = editoriales[-train2, ])
 editoriales.test <- 
   editoriales[-train2,
               "reneco"]
@@ -341,9 +346,6 @@ abline(0,
        1)
 mean((yhat - editoriales.test)^2)
 ```
-
-En otras palabras, el MSE del conjunto de prueba asociado con el árbol de regresión es de $35,29$.
-Por lo tanto, la raíz cuadrada del MSE es de alrededor de $5.941$, lo que indica que este modelo conduce a predicciones de prueba que están (en promedio) dentro de aproximadamente $5{,}941$ del valor medio real de la vivienda para el distrito censal.
 
 # Clasificación
 
@@ -374,35 +376,130 @@ attach(editoriales)
 
 ## Árbol de clasificación / Classification tree
 
-Vamos a realizar un árbol de clasificación y una validación cruzada. El árbol de clasificación sobre la muestra de entrenamiento, arroja una predicción cuyo acierto es del 80,50%. Por ejemplo, predice 141 microempresas de forma exacta, y por otro lado, por ejemplo, predice una microempresa como empresa grande. Respecto a la predicción sobre el total de los datos considerados, el acierto aumenta a un 91,62%, un dato incluso superior que sobre la muestra de entrenamiento, fruto a que la muestra de entrenamiento seleccionada sea, seguramente, más difícil de predecir que si se hace, como hemos visto, sobre la muestra tota (puede ser por errores más altos).
+En esta sección se procederá a realizar un árbol de clasificación y una validación cruzada. 
 
-```{r chunk8}
+  +   El árbol de clasificación **sobre la muestra de entrenamiento** (train), arroja una predicción cuyo acierto es del 80,50%. Por ejemplo, predice 141 microempresas de forma exacta, y por otro lado, por ejemplo, predice una microempresa como empresa grande. 
+
+```{r treeclass1}
 set.seed(1)
-train3 <- sample(1:nrow(editoriales),
-                200)
-editoriales.test2 <- editoriales[-train3, ]
-tamaño.test <- tamaño[-train3]
-tree.editoriales2 <- tree(tamaño ~ . - emplea, 
-                         editoriales,
-    subset = train3)
+train3 <- 
+  sample(1:nrow(editoriales),
+         200)
+editoriales.test2 <- 
+  editoriales[-train3, ]
+tamaño.test <- 
+  tamaño[-train3]
+tree.editoriales2 <- 
+  tree(tamaño ~ . - emplea, 
+       editoriales,
+       subset = train3)
 tree.pred <- predict(tree.editoriales2, 
                      editoriales.test2,
     type = "class")
 table(tree.pred, 
       tamaño.test)
-tree.predtotal <- predict(tree.editoriales2, 
-                     editoriales,
+(141+14+2+4)/200
+```
+  
+  + Respecto a la **predicción sobre el total** de los datos considerados (train y test), el acierto aumenta a un 91,62%, un dato incluso superior que sobre la muestra de entrenamiento, fruto a que la muestra de entrenamiento seleccionada sea, seguramente, más difícil de predecir que si se hace, como hemos visto, sobre la muestra total (puede ser por errores más altos).
+
+```{r treeclass2}
+tree.predtotal <- 
+  predict(tree.editoriales2, 
+          editoriales,
     type = "class")
 table(tree.predtotal, 
       tamaño)
-(141+14+2+4)/200
 (308+10+7+14)/370
 ```
+
+
+## KNN
+
+En este tercer apartado, se ha realizado una predicción utilizando el método de *k-vecinos*, obteniendo resultados para ambas muestras (validación y estimación), escogiéndose 4 grupos de k-vecinos al tener 4 tipos de empresas **tamaño** (tamaños de empresas).
+
+  +   Los resultados arrojan, para ambas muestras, un acierto en la predicción de entorno al 90%, algo ligeramente superior en la muestra de entrenamiento. 
+  + Si se compara con la predicción del árbol de clasificación (91,6% en muestra de validación), se observa que el método de k-vecinos es mínimamente peor que el árbol de clasificación. Por otro lado, de forma complementaria, cabe decir que el árbol de clasificación acertaba en la predicción un 80,5%, mientras que el método de k-vecinos es prácticamente un 10% superior (91,40%). 
+  + En este punto cabe decir que **el método de k-vecinos sería mejor a la hora de predecir**, aunque el árbol de clasificación es más intepretable al no caer en lo automático del otro método (calcula distancias y predice de forma directa).
+
+```{r knn1, include = FALSE}
+train3 <-
+  c(rep(TRUE,
+        280),
+    rep(FALSE,
+        90))
+set.seed(1)
+attach(editoriales)
+train.X <-   
+  cbind(reneco,
+        renfin,
+        liquidez,
+        solvencia,
+        ing,
+        endeuda,
+        emplea,
+        activo,
+        fpios,
+        res,
+        ing,
+        margen,
+        apalanca,
+        beneficio)[train3, ]
+test.X <- 
+  cbind(reneco,
+        renfin,
+        liquidez,
+        solvencia,
+        ing,
+        endeuda,
+        emplea,
+        activo,
+        fpios,
+        res,
+        ing,
+        margen,
+        apalanca,
+        beneficio)[!train3, ]
+train.tamaño <- 
+  tamaño[train3]
+```
+
+```{r knn2}
+tamaño5 <- 
+  tamaño[!train3]
+tamaño6 <- 
+  tamaño[train3]
+set.seed(1)
+knn.predtrain <- 
+  knn(train.X,
+      train.X,
+      train.tamaño,
+      k = 4)
+table(knn.predtrain, 
+      tamaño6)
+(227+10+9+10)/280
+```
+
+```{r knn3}
+knn.predtest <- knn(train.X,
+                test.X,
+                train.tamaño,
+                k = 4)
+table(knn.predtest, 
+      tamaño5)
+(75+2+5)/90
+```
+
+
 
 ## Regresión logística / Logistic regression # no nos vale de momento
 
 ```{r chunk9}
-train3<-c(rep(TRUE,280), rep(FALSE,90))
+train3 <-
+  c(rep(TRUE,
+        280),
+    rep(FALSE,
+        90))
 set.seed(1)
 attach(editoriales)
 train4 <- (apalanca > 5)
@@ -431,66 +528,6 @@ mean(glm.pred == tamaño2)
 mean(glm.pred != tamaño2)
 ```
 
-## KNN
-
-```{r chunk26}
-library(class)
-train.X <- cbind(reneco, 
-                 renfin, 
-                 liquidez, 
-                 solvencia, 
-                 ing, 
-                 endeuda, 
-                 emplea, 
-                 activo,
-                 fpios,
-                 res,
-                 ing,
-                 margen,
-                 apalanca,
-                 beneficio)[train3, ]
-test.X <- cbind(reneco, 
-                 renfin, 
-                 liquidez, 
-                 solvencia, 
-                 ing, 
-                 endeuda, 
-                 emplea, 
-                 activo,
-                 fpios,
-                 res,
-                 ing,
-                 margen,
-                 apalanca,
-                 beneficio)[!train3, ]
-train.tamaño <- tamaño[train3]
-```
-
-```{r chunk27}
-tamaño5 <- tamaño[!train3]
-tamaño6 <- tamaño[train3]
-set.seed(1)
-knn.predtrain <- knn(train.X,
-                train.X,
-                train.tamaño,
-                k = 4)
-table(knn.predtrain, 
-      tamaño6)
-(227+10+9+10)/280
-knn.predtest <- knn(train.X,
-                test.X,
-                train.tamaño,
-                k = 4)
-table(knn.predtest, 
-      tamaño5)
-(75+2+5) / 90
-```
-
-Se ha realizado una predicción utilizando el método de k-vecinos, obteniendo resultados para ambas muestras (validación y estimación), escogiendose 4 grupos de k-vecinos al tener 4 tipos de empresas (tamaños de empresas). Los resultados arrojan, para ambas muestras, un acierto en la predicción de entorno al 90%, algo ligeramente superior en la muestra de entrenamiento. 
-
-Si se compara con la predicción del árbol de clasificación (91,6% en muestra de validación), se observa que el método de k-vecinos es mínimamente peor que el árbol de clasificación. Por otro lado, de forma complementario, cabe decir que el árbol de clasificación acertaba en la predicción un 80,5%, mientras que el método de k-vecinos es prácticamente un 10% superior (91,40%). 
-
-En este punto cabe decir que el método de k-vecinos sería mejor a la hora de predecir, aunque el árbol de clasificación es más intepretable al no caer en lo automático del otro método (calcula distancias y predice de forma directa).
 
 # Conclusiones
 
