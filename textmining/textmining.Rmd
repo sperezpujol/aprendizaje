@@ -1,0 +1,127 @@
+---
+title: "Trabajo de Text Mining | Proyecto <p> Text Mining aplicado a una novela de Charles Dickens"
+subtitle: "Máster Universitario en Modelización y Análisis de Datos Económicos <p> (MUMADE)"
+author: 'Autores: Bermann, M.A. & Pérez, R.S. [Grupo D]'
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+    prettydoc::html_pretty:
+    theme: cayman
+    highlight: vignette
+lang: es
+---
+
+```{r setup, include = FALSE}
+# Ajustes de los chunk
+knitr::opts_chunk$set(echo = FALSE, 
+                      eval = TRUE, 
+                      message = FALSE,
+                      warning = FALSE,
+                      comment = '')
+```
+
+```{r inicio, include = FALSE}
+# Limpieza inicial del entorno
+rm(list = ls())
+
+# Instalación de paquetes que no estén instalados
+packages <- c("tidyr",
+              "dplyr",
+              "tidytext",
+              "tidyverse",
+              "gutenbergr",
+              "tokenizers",
+              "tm",
+              "ggplot2",
+              "igraph",
+              "ggraph")
+installed_packages <- packages %in% 
+  rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages])
+}
+
+# Activación de paquetes
+library(tidyr)
+library(dplyr)
+library(tidytext)
+library(tidyverse)
+library(gutenbergr)
+library(tokenizers)
+library(tm)
+library(ggplot2)
+library(igraph)
+library(ggraph)
+```
+
+# Resumen 
+
+Párrafo único
+
+# Procesamiento del texto
+
+```{r}
+# Importando la obra del Proyecto Gutenberg
+olivertwist <- 
+  gutenberg_download(c(730))
+```
+
+```{r}
+# Ajustándonos al principio y final de la novela
+text_olivertwist <-
+  olivertwist %>% 
+  slice((114:18813)) %>% 
+  select(2) %>% 
+  pull() %>%
+  map(trimws) %>%
+  ifelse(. == "", "_salto_", .) %>%
+  paste0(., collapse = " ") %>%
+  strsplit(split = "_salto_") %>%
+  map(trimws) %>%
+  data.frame(stringsAsFactors = FALSE) %>%
+  as_tibble() %>%
+  {
+    names(.) <- "texto"
+    .
+  }
+
+# Tokenizando y eliminando palabras vacías
+tidy_olivertwist <- 
+  olivertwist %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words)
+
+# Información inicial
+summary(tidy_olivertwist)
+
+# Palabras más frecuentes
+tidy_olivertwist %>%
+  count(word,
+        sort = TRUE)
+```
+
+
+# Análisis de sentimientos
+
+# Nube de palabras
+
+# Frecuencia de palabras
+
+# Conclusiones
+
+Párrafo 1
+
+Párrafo 2
+
+# Referencias
+
+En esta sección se incluyen las referencias bibliográficas utilizadas para el desarrollo del proyecto.
+
+# Anexos
+
+## Anexo 1. Datos de la sesión
+
+En esta sección se recogen los datos de la sesión utilizada para elaborar este informe. Es fundamental observar la versión de R, así como las versiones de los paquetes bajo los cuales se ha ejecutado el código o *script*.
+
+```{r}
+sessionInfo()
+```
