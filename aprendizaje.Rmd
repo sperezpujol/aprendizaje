@@ -10,8 +10,6 @@ output:
 lang: es
 ---
 
-# Configuraciones iniciales
-
 ```{r setup, include = FALSE}
 # Ajustes de los chunk
 knitr::opts_chunk$set(echo = FALSE, 
@@ -291,7 +289,7 @@ vif(lm2.fit)
 ```{r rlm2error}
 # Multiple Linear Regression ERROR
 attach(editoriales)
-mean((reneco - predict(lm2.fit, 
+mean((renfin - predict(lm2.fit, 
                        editoriales))[-train]^2)
 ```
 
@@ -299,19 +297,19 @@ mean((reneco - predict(lm2.fit,
 
 En este segundo apartado se va a proceder a ajustar un **árbol de regresión** sobre la base de datos de editoriales que se está utilizando.
 
-  +   En primer lugar, se creala muestra de entrenamiento y se ajusta el árbol a los datos de entrenamiento. Los resultados nos indican que tenemos que usar 5 variables para construir el árbol. En el contexto del árbol de regresión, la desviación es la suma de los cuadrados de los errores del árbol.
+  +   En primer lugar, se creala muestra de entrenamiento y se ajusta el árbol a los datos de entrenamiento. Los resultados nos indican que tenemos que usar 4 variables para construir el árbol. En el contexto del árbol de regresión, la desviación es la suma de los cuadrados de los errores del árbol.
   
 ```{r tree1}
 set.seed(1)
-train2 <- sample(1:nrow(editoriales),
-                 nrow(editoriales / 2))
+train2 <- sample(1:nrow(editoriales), 
+                 nrow(editoriales) / 2)
 tree.editoriales <- tree(reneco ~ .,
                     editoriales,
                     subset = train2)
 summary(tree.editoriales)
 ```
 
-  + A continuación, se puede **visualizar gráficamente el árbol**. Vemos que la variable que nos ayuda a dividir los datos en grupos más iguales es el margen. El punto de división del margen es 12,41. Si es mayor, el rendimiento será más alto, y si es menor, viceversa. En la parte superior del margen, la siguiente variable que permite sacar conclusiones es la rentabilidad financiera, y en menor medida fondos propios y endeudamiento. Las empresas con rentabilidad financiera más alta, tendrán una mayor rentabilidad económica. Las empresas menos endeudadas, tendrán una mayor rentabilidad económica y fondos propios.
+  + A continuación, se puede **visualizar gráficamente el árbol**. Vemos que la variable que nos ayuda a dividir los datos en grupos más iguales es el margen. El punto de división del margen es 6,73. Si es mayor, el rendimiento será más alto, y si es menor, viceversa. En la parte superior del margen, la siguiente variable que permite sacar conclusiones es la rentabilidad financiera, y en menor medida el endeudamiento. Las empresas con rentabilidad financiera más alta, tendrán un mayor endeudamiento. Las empresas con menor margen, se seguirán dividiendo los grupos por margen, y las que tengan un menor margen, y un número de empleados mayores, serán el subgrupo con los peores datos de rendimiento.
 
 ```{r plot_tree1, fig.width = 10, fig.height = 4}
 plot(tree.editoriales)
@@ -329,14 +327,18 @@ plot(cv.editoriales$size,
      type = "b")
 ```
 
-  + Ya se pueden realizar las **predicciones de la muestra de validación**. ################ ESTÁ MAL DE MOMENTO
+  + Ya se pueden realizar las **predicciones de la muestra de validación**. En primer lugar, si se observa el gráfico, el modelo captura de forma bastante aceptable los subgrupos y, si bien un árbol de regresión, al trabajar con medias de subgrupos, puede tener un mayor error, ahora se procederá a comparar con el resto. Respecto al dato del error medio obtenido, muestra que el modelo es mejor que el de regresión lineal múltiple.
 
-```{r tree_pred, eval = FALSE}
+```{r tree_pred, fig.width = 10, fig.height = 4}
 yhat <- predict(tree.editoriales,
                 newdata = editoriales[-train2, ])
-editoriales.test <- editoriales[-train2, "reneco"]
-plot(yhat, editoriales.test)
-abline(0, 1)
+editoriales.test <- 
+  editoriales[-train2,
+              "reneco"]
+plot(yhat,
+     editoriales.test)
+abline(0,
+       1)
 mean((yhat - editoriales.test)^2)
 ```
 
@@ -401,7 +403,6 @@ table(tree.predtotal,
 
 ```{r chunk9}
 train3<-c(rep(TRUE,280), rep(FALSE,90))
-?rep
 set.seed(1)
 attach(editoriales)
 train4 <- (apalanca > 5)
