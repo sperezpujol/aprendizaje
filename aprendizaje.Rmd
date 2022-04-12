@@ -22,7 +22,6 @@ knitr::opts_chunk$set(echo = FALSE,
 ```{r inicio, include = FALSE}
 # Limpieza inicial del entorno
 rm(list = ls())
-
 # Instalación de paquetes que no estén instalados
 packages <- c("tidyr",
               "dplyr",
@@ -48,7 +47,6 @@ installed_packages <- packages %in%
 if (any(installed_packages == FALSE)) {
   install.packages(packages[!installed_packages])
 }
-
 # Activación de paquetes
 library(readxl)
 library(PerformanceAnalytics)
@@ -84,9 +82,9 @@ Se han utilizado datos de **370 empresas editoriales españolas**, extraídas de
   + **liquidez**: la liquidez de la empresa. Es el resultado de dividir los activos líquidos de la empresa entre sus deudas.
   + **endeuda**: el nivel de endeudamiento de la empresa. Es el resultado de dividir las deudas entre el total de activos.
   + **fpios**: fondos propios. Cantidad absoluta, en miles de euros, de fondos propios de la empresa.
- + *res*: resultado del ejercicio. Resultado del ejercicio absoluto, en miles de euros. 
- + *ing*: ingresos de explotación. Ingresos del ejercicio absolutos, en miles de euros.
- + **margen*: margen financiero. Es el resultado de dividir el resultado del ejercicio entre los ingressos de explotación.
+ + **res**: resultado del ejercicio. Resultado del ejercicio absoluto, en miles de euros. 
+ + **ing**: ingresos de explotación. Ingresos del ejercicio absolutos, en miles de euros.
+ + **margen**: margen financiero. Es el resultado de dividir el resultado del ejercicio entre los ingressos de explotación.
  + **solvencia**: ratio de solvencia. Es el resultado de dividir el activo a corto plazo entre el pasivo a corto plazo, indicando la capacidad de la empresa de pagar sus deudas a corto plazo. 
  + **apalanca**: apalancamiento. Es el resultado de dividir la deuda entre los fondos propios.
  + **tamaño**: Tamaño de la empresa. Para generar esta variable cualitativa, hemos clasificado las empresas según el número de trabajadores.
@@ -184,7 +182,7 @@ ggplot(data = editoriales,
                                    vjust = 1))
 ```
 
-  + Podemos plantear también los llamados **gráficos de cajas**. Si lo hacemos para la variable **renfin** observamos como la mayor parte de datos atípicos se sitúan en la zona positiva de valor, pues también encontramos numerosos atípicos pero se sitúan mucho más centrados en torno a la media.
+  + Podemos plantear también los llamados **gráficos de cajas**. Si lo hacemos para la variable **renfin** observamos como la mayor parte de datos atípicos se sitúan en la zona positiva de valor, pues también encontramos numerosos atípicos pero se sitúan mucho más centrados en torno a la media ya que la baja varianza de la parte central de los datos hace que R entienda como atípicos valores que no están tan lejos según parámetros humanos.
   
 ```{r boxplot1, fig.width = 10, fig.height = 4}
 # GRAFICO CAJAS RENFIN
@@ -233,7 +231,7 @@ editoriales %>%
   group_by(beneficio, 
            tamaño) %>%
   summarise_at(vars(renfin), 
-               list(name = mean)) %>% 
+               list(renfin = mean)) %>% 
   kable()
 ```
 
@@ -432,7 +430,6 @@ fit.svm <-
       cost = 0.1,
       scale = TRUE,
       subset = train3)
-
 svm.predtotal <- 
   predict(fit.svm, 
           editoriales,
@@ -521,9 +518,10 @@ table(knn.predtest,
 
 # Conclusiones
 
-Párrafo 1
+Hemos analizado dos variables distintas sobre las empresas editoriales en España, su rentabilidad económica por un lado y su tamaño, por otro. 
+Respecto a la primera, hemos usado métodos que nos dan una explicación detallada del modelo generado como son la regresión lineal múltiple y un árbol de regresión. Gracias a ellos, hemos visto que la rentabilidad depende en mayor parte de su margen financiero, y en segundo lugar del endeudamiento y el número de empleados. El modelo que nos ha dado mejores predicciones, comprobado usando validación cruzada, ha sido el árbol de regresión. Ya que nuestra muestra no es tan grande, no hemos llevado a cabo k-folding para la validación. 
 
-Párrafo 2
+Respecto a la clasificación, hemos usado primero un árbol de clasificación, que si bien es  muy interpretable, al compararlo con otros métodos vimos que tenía un sesgo mayor, usando la matriz de confusión del conjunto de entrenamiento como métrica. Al usar una máquina de vectores de soporte, aunque no podamos interpretar cómo se había llegado a las predicciones del modelo, nos da una mayor tasa de acierto. Decidimos tomar una solución intermedia usando el modelo de k-vecinos, que sabemos que toma una distancia entre los  puntos para formar grupos pero para recarlcularla manualmente no es tan sencillo como un modelo logit, mucho menos un árbol de clasificación. Sin embargo, al ser el modelo que menor error nos da, es el que usaríamos para predecir si una empresa es grande, mediana, pequeña o microempresa.
 
 # Referencias
 
