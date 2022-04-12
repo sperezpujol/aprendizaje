@@ -14,7 +14,7 @@ Este repositorio contiene los documentos y archivos necesarios para la entrega d
 
 ## ¿Qué contiene el trabajo?
 
-En este trabajo usaremos técnicas de aprendizaje estadístico para predecir cuestiones clave sobre las editoriales españolas usando información  sobre 370 diferentes editoriales del año 2018.  Presentamos los datos en formato RDS en el archivo dataset_aprendizaje.rds , el documento Rmarkdown en el que hemos trabajado en el archivo [aprendizaje.Rmd](https://github.com/sperezpujol/aprendizaje/blob/main/aprendizaje.Rmd) y por último el documento html con el output del trabajo en el archivo [aprendizaje.html](https://github.com/sperezpujol/aprendizaje/blob/main/aprendizaje.html).
+En este trabajo usaremos técnicas de aprendizaje estadístico para predecir cuestiones clave sobre las editoriales españolas usando información  sobre 370 diferentes editoriales del año 2018.  Presentamos los datos en formato RDS en el archivo [dataset_aprendizaje.rds](https://github.com/sperezpujol/aprendizaje/blob/main/dataset_aprendizaje.rds), el documento Rmarkdown en el que hemos trabajado en el archivo [aprendizaje.Rmd](https://github.com/sperezpujol/aprendizaje/blob/main/aprendizaje.Rmd) y por último el documento html con el output del trabajo en el archivo [aprendizaje.html](https://github.com/sperezpujol/aprendizaje/blob/main/aprendizaje.html).
 
 **¡ATENCIÓN! EL ENTORNO Y PROYECTO NO ESTÁ TERMINADO AÚN. LOS ARCHIVOS SON VERSIONES PRELIMINARES/BORRADORES.**
 
