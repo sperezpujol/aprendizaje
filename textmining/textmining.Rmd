@@ -33,7 +33,9 @@ packages <- c("tidyr",
               "tm",
               "ggplot2",
               "igraph",
-              "ggraph")
+              "ggraph",
+              "scales",
+              "stringr")
 
 installed_packages <- packages %in% 
   rownames(installed.packages())
@@ -52,6 +54,8 @@ library(tm)
 library(ggplot2)
 library(igraph)
 library(ggraph)
+library(scales)
+library(stringr)
 ```
 
 # Resumen 
@@ -89,8 +93,47 @@ text_olivertwist <-
 text_olivertwist <-
   text_olivertwist %>% 
   slice((1:3894))
-```
 
+# Quitando renglones vacíos
+text_olivertwist <-
+  text_olivertwist %>%
+  filter(!texto %in% c(" ", "")) %>%
+  mutate_all(trimws)
+
+# Agrupando párrafos por capítulos
+text_olivertwist %>%
+  filter(grepl("CHAPTER",
+               texto))
+
+text_olivertwist <-
+  text_olivertwist %>%
+  mutate(capitulo = ifelse(grepl("CHAPTER", 
+                                 texto), 
+                           texto, NA)) %>%
+  fill(capitulo) %>%
+  filter(texto != capitulo)
+
+# Tokenizando
+tidy_olivertwist <- 
+  text_olivertwist %>%
+  unnest_tokens(word, texto) %>%
+  anti_join(stop_words)
+
+# Palabras más frecuentes
+tidy_olivertwist %>%
+  count(word,
+        sort = TRUE)
+
+frequency <- mutate(tidy_olivertwist,
+                    author = "Charles Dickens") %>%
+  mutate(word = str_extract(word,
+                            "[a-z']+")) %>%
+  count(author, word) %>%
+  group_by(author) %>%
+  mutate(proportion = n / sum(n)) %>%
+  select(-n) %>%
+  spread(author, proportion) %>%
+```
 
 # Análisis de sentimientos
 
@@ -107,6 +150,14 @@ Párrafo 2
 # Referencias
 
 En esta sección se incluyen las referencias bibliográficas utilizadas para el desarrollo del proyecto.
+
+[Dickens, C. (1837). Oliver Twist. Project Gutenberg. https://www.gutenberg.org/ebooks/730.](https://www.gutenberg.org/ebooks/730)
+
+Gutiérrez, M.J. (2022). Text mining con R. Aprendizaje estadístico y otras técnicas avanzadas. Máster Universitario en Modelización y Análisis de Datos Económicos. Universidad de Castilla-La Mancha.
+
+[El Cronovisor (2017). Charles Dickens, genio de la crítica social. Episodio 4. https://open.spotify.com/episode/3lLBJHZGY3verRFV6ptEbS?si=9_xGOeGWTiW4ijZuIexBeg&utm_source=copy-link](https://open.spotify.com/episode/3lLBJHZGY3verRFV6ptEbS?si=9_xGOeGWTiW4ijZuIexBeg&utm_source=copy-link)
+
+[Silge, J. & Robinson D. (2022). Text Mining with R. https://www.tidytextmining.com/tidytext.html.](https://www.tidytextmining.com/tidytext.html)
 
 # Anexos
 
