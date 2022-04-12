@@ -34,6 +34,7 @@ packages <- c("tidyr",
               "ggplot2",
               "igraph",
               "ggraph")
+
 installed_packages <- packages %in% 
   rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
@@ -59,30 +60,16 @@ Párrafo único
 
 # Procesamiento del texto
 
-```{r}
+En primer lugar se ha **descargado e importado** al entorno de trabajo la novela, a través del [Project Gutenberg](https://www.gutenberg.org/ebooks/730), donde _Oliver Twist_ tiene la numeración [730](https://www.gutenberg.org/files/730/730-0.txt).
+
+```{r importacion, include = FALSE}
 # Importando la obra del Proyecto Gutenberg
 olivertwist <- 
   gutenberg_download(c(730))
 
-# Tokenizando y eliminando palabras vacías
-tidy_olivertwist <- 
-  olivertwist %>%
-  unnest_tokens(word, text) %>%
-  anti_join(stop_words)
-
-# Información inicial
-summary(tidy_olivertwist)
-
-# Palabras más frecuentes
-tidy_olivertwist %>%
-  count(word,
-        sort = TRUE)
-```
-
-```{r}
 # Ajustándonos al principio y final de la novela y otros ajustes
 text_olivertwist <-
-  tidy_olivertwist %>% 
+  olivertwist %>% 
   slice((114:18813)) %>% 
   select(2) %>% 
   pull() %>%
@@ -97,6 +84,11 @@ text_olivertwist <-
     names(.) <- "texto"
     .
   }
+
+# Eliminando filas en blanco finales
+text_olivertwist <-
+  text_olivertwist %>% 
+  slice((1:3894))
 ```
 
 
