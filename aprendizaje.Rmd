@@ -417,7 +417,7 @@ table(tree.predtotal,
 
 ## SVM
 
-A continuación, tras haber realizado el árbol de clasificación, y haber observado su capacidad predictiva, se opta por un ***Support Vector Machine* (SVM)**.
+A continuación, tras haber realizado el árbol de clasificación, y haber observado su capacidad predictiva, se opta por un **Support Vector Machine (SVM)**.
 
   + Dicha metodología nos muestra cómo el modelo pierde capacidad predictiva respecto al árbol de clasificación en el total del conjunto (en la muestra de test tiene un 89% de acierto frente el 91% obtenido mediante un método de árbol de clasificación en el total del conjunto). Esto supone perder, además, interpretabilidad, con lo que vamos a plantear utilizar otro modelo.
   
