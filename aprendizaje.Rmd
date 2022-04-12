@@ -270,9 +270,10 @@ En primer lugar, se propone construir un **modelo de regresión múltiple**, el 
 
 ```{r rlm1}
 # Multiple Linear Regression (ALL ITEMS)
-lm1.fit <- lm(renfin ~ ., 
-              data = editoriales,
-              subset = train)
+lm1.fit <- 
+  lm(renfin ~ .,
+     data = editoriales,
+     subset = train)
 summary(lm1.fit)
 vif(lm1.fit)
 ```
@@ -281,9 +282,10 @@ vif(lm1.fit)
 
 ```{r rlm2}
 # Multiple Linear Regression
-lm2.fit <- lm(renfin ~ solvencia + apalanca + endeuda,
-             data = editoriales,
-             subset = train)
+lm2.fit <-
+  lm(renfin ~ solvencia + apalanca + endeuda,
+     data = editoriales,
+     subset = train)
 summary(lm2.fit)
 vif(lm2.fit)
 ```
@@ -423,12 +425,13 @@ A continuación, tras haber realizado el árbol de clasificación, y haber obser
   
 ```{r svm}
 set.seed(1)
-fit.svm <- svm(tamaño ~., 
-               data = editoriales, 
-               kernel = "linear", 
-               cost = 0.1, 
-               scale = TRUE, 
-               subset = train3)
+fit.svm <- 
+  svm(tamaño ~.,
+      data = editoriales,
+      kernel = "linear",
+      cost = 0.1,
+      scale = TRUE,
+      subset = train3)
 
 svm.predtotal <- 
   predict(fit.svm, 
@@ -506,10 +509,11 @@ table(knn.predtrain,
 ```
 
 ```{r knn3}
-knn.predtest <- knn(train.X,
-                test.X,
-                train.tamaño,
-                k = 4)
+knn.predtest <- 
+  knn(train.X,
+      test.X,
+      train.tamaño,
+      k = 4)
 table(knn.predtest, 
       tamaño5)
 (75+2+5)/90
