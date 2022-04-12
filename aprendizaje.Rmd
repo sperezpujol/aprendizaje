@@ -22,7 +22,8 @@ knitr::opts_chunk$set(echo = FALSE,
 ```{r inicio, include = FALSE}
 # Limpieza inicial del entorno
 rm(list = ls())
-# Instalación de paquetes que no estén instalados
+
+# Instalacion de paquetes que no estén instalados
 packages <- c("tidyr",
               "dplyr",
               "ggplot2",
@@ -42,11 +43,13 @@ packages <- c("tidyr",
               "stats",
               "class",
               "e1071")
+
 installed_packages <- packages %in% 
   rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
   install.packages(packages[!installed_packages])
 }
+
 # Activación de paquetes
 library(readxl)
 library(PerformanceAnalytics)
@@ -518,7 +521,8 @@ table(knn.predtest,
 
 # Conclusiones
 
-Hemos analizado dos variables distintas sobre las empresas editoriales en España, su rentabilidad económica por un lado y su tamaño, por otro. 
+Hemos analizado dos variables distintas sobre las empresas editoriales en España, su rentabilidad financiera por un lado y su tamaño, por otro. 
+
 Respecto a la primera, hemos usado métodos que nos dan una explicación detallada del modelo generado como son la regresión lineal múltiple y un árbol de regresión. Gracias a ellos, hemos visto que la rentabilidad depende en mayor parte de su margen financiero, y en segundo lugar del endeudamiento y el número de empleados. El modelo que nos ha dado mejores predicciones, comprobado usando validación cruzada, ha sido el árbol de regresión. Ya que nuestra muestra no es tan grande, no hemos llevado a cabo k-folding para la validación. 
 
 Respecto a la clasificación, hemos usado primero un árbol de clasificación, que si bien es  muy interpretable, al compararlo con otros métodos vimos que tenía un sesgo mayor, usando la matriz de confusión del conjunto de entrenamiento como métrica. Al usar una máquina de vectores de soporte, aunque no podamos interpretar cómo se había llegado a las predicciones del modelo, nos da una mayor tasa de acierto. Decidimos tomar una solución intermedia usando el modelo de k-vecinos, que sabemos que toma una distancia entre los  puntos para formar grupos pero para recarlcularla manualmente no es tan sencillo como un modelo logit, mucho menos un árbol de clasificación. Sin embargo, al ser el modelo que menor error nos da, es el que usaríamos para predecir si una empresa es grande, mediana, pequeña o microempresa.
@@ -527,11 +531,16 @@ Respecto a la clasificación, hemos usado primero un árbol de clasificación, q
 
 En esta sección se incluyen las referencias bibliográficas utilizadas para el desarrollo del proyecto.
 
+[Cano, E. (2022). Introducción al software estadístico R. https://www.lcano.com/b/iser/_book/index.html](https://www.lcano.com/b/iser/_book/index.html)
+
+[James, G. et al. (2021). An introduction to Statistical Learning with Applications in R. Second Edition. Springer](https://www.statlearning.com/)
+
+
 # Anexos
 
 ## Anexo 1. Datos de la sesión
 
-En esta sección se recogen los datos de la sesión utilizada para elaborar este informe. Es fundamental observar la versión de R, así como las versiones de los paquetes bajo los cuales se ha ejecutado el código o *script*.
+En esta sección se recogen los datos de la sesión utilizada para elaborar este informe. Es fundamental observar la **versión de R**, así como las versiones de los paquetes bajo los cuales se ha ejecutado el código o *script*.
 
 ```{r}
 sessionInfo()
