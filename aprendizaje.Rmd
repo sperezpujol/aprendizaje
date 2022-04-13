@@ -74,7 +74,7 @@ library(e1071)
 
 # Resumen 
 
-Las empresass editoriales están en una transición donde el papel se está viendo sobrepasado por todo lo que pueda sonar a "digital". En este sentido, en España, las empresas editoriales siempre han ido teniendo cierta importancia gracias a que son una vía de posicionamiento y puesta en valor de la creación artística y literaria de miles de autores, así como por ser canal de producción de productos relacionados con numerosos ámbitos (educativos, ocio, revistas, etc.). En este sentido, es de interés, aplicar técnicas de aprendizaje estadístico para poder dar uso a diferentes métodos de predicción y clasificación, utilizando para ello R. Por tanto, en este proyecto se han aplicado dichas técnicas al caso de empresas editoriales españolas, a partir de la base de datos de Sabi, con el objetivo de realizar y aplicar técnicas predictivas y de análisis y aprendizaje estadístico.
+Las empresass editoriales están en una transición donde el papel se está viendo sobrepasado por todo lo que pueda sonar a "digital". En este sentido, en España, las empresas editoriales siempre han ido teniendo cierta importancia gracias a que son una vía de posicionamiento y puesta en valor de la creación artística y literaria de miles de autores, así como por ser canal de producción de productos relacionados con numerosos ámbitos (educativos, ocio, revistas, etc.). En este mismo sentido, es de interés, aplicar técnicas de aprendizaje estadístico para poder dar uso a diferentes métodos de predicción y clasificación, utilizando para ello R. Por tanto, en este proyecto se han aplicado dichas técnicas al caso de empresas editoriales españolas, a partir de la base de datos de Sabi, con el objetivo de realizar y aplicar técnicas predictivas y de análisis y aprendizaje estadístico.
 
 # Importación y tratamiento de datos
 
@@ -112,7 +112,7 @@ editoriales$tamaño <-
                     "grande"))
 ```
 
-Cabe decir que se han dividido los datos en un conjunto de **entrenamiento** (train) y otro de **validación** (test), para lo que se ha dijado la semilla para que el resultado sea, oportunamente reproducible.
+Cabe decir que se han dividido los datos en un conjunto de **entrenamiento** (train) y otro de **validación** (test), para lo que se ha fijado la semilla para que el resultado sea, oportunamente reproducible.
 
 ```{r division, include = FALSE}
 # Partiendo la muestra en test y train
@@ -124,11 +124,11 @@ train <-
 
 # Análisis exploratorio de datos
 
-En este primer capítulo de va a proceder a realizar un análisis exploratorio de los datos con los que se va a trabajar para conocer tentativamente sus características.
+En este primer capítulo se va a proceder a realizar un análisis exploratorio de los datos con los que se va a trabajar para conocer tentativamente sus características.
 
 ## Análisis de correlaciones
 
-Así, si recurrimos, en primer lugar, a una **visualización de las correlaciones** entre las variables, encontramos que las mayores correlaciones positivas se dan entre activo y fondos propios y activo e ingresos de explotación. También parece considerable la correlación positiva entre la variable que recoge las empresas de tamaño grande y su relación con el número de empleados y los ingresos de explotación, lo que parece algo evidente. Por su parte, las mayores correlaciones negativas.
+Así, si recurrimos, en primer lugar, a una **visualización de las correlaciones** entre las variables, encontramos que las mayores correlaciones positivas se dan entre activo y fondos propios y activo e ingresos de explotación. También parece considerable la correlación positiva entre la variable que recoge las empresas de tamaño grande y su relación con el número de empleados y los ingresos de explotación, lo que parece algo evidente. Por su parte, las mayores correlaciones negativas se dan entre activo y fondos propios, y entre la relación de la variable ingresos de explotación con diversas variables.
 
 ```{r correlaciones, fig.width = 10, fig.height = 5}
 # ANALISIS DE CORRELACIONES
@@ -143,7 +143,7 @@ model.matrix(~0+.,
 
 ## Análisis de dispersión de datos
 
-En este apartado estamos interesados en ver cómo se distribuyen los datos de algunas de las variables del dataset utilizado. Veamos algunos ejemplos.
+En este apartado estamos interesados en ver cómo se distribuyen los datos de algunas de las variables del _dataset_ utilizado. Veamos algunos ejemplos.
 
   + Si observamos la dispersión de la **variable emplea** (número de empleados), podremos ver que hay una serie empresas, de las analizadas, que tienen un gran número de empleados. No obstante, al no ser una medida relativa, procedamos a plantear un gráfico de dispersión de una variable relativa. 
 
@@ -165,7 +165,7 @@ ggplot(data = editoriales,
                                    vjust = 1))
 ```
 
-  + En cuanto a la distribución de la **variable renfin** (rentabilidad financiera), se observa que la mayor parte de las editoriales, sitúan su rentabilidad financiera en torno a 0, aunque, no obstante, se siguen observando bastantes casos que despuntan. Ya que la media es positiva, es decir, los resultados de la muestra de rentabilidad financiera está sesgada en términos positivos, es una señal de que las empresas editoriales tienen una buena capacidad de generar beneficios a través de sus fondos propios. No obstante, esto podría venir dado por la influencia de grandes empresas que empujan a la muestra a tener un sesgo positivo, pues gráficamente observamos también algunos casos atípicos o influyentes que despuntan por la parte inferior de la media.
+  + En cuanto a la distribución de la **variable renfin** (rentabilidad financiera), se observa que la mayor parte de las editoriales, sitúan su rentabilidad financiera en torno a 0, aunque, no obstante, se siguen observando bastantes casos que despuntan. Ya que la media es positiva, es decir, los resultados de la muestra de rentabilidad financiera está sesgada en términos positivos, es una señal de que las empresas editoriales tienen una buena capacidad de generar beneficios a través de sus fondos propios. No obstante, esto podría venir dado por la influencia de grandes empresas que empujan a la muestra a tener un sesgo positivo, pues gráficamente observamos también algunos casos atípicos o influyentes que despuntan por la parte superior e inferior de la muestra (especialmente datos relevantes en la parte superior).
 
 ```{r dispersion2, fig.width = 10, fig.height = 7}
 # DISPERSION RENFIN
@@ -185,7 +185,7 @@ ggplot(data = editoriales,
                                    vjust = 1))
 ```
 
-  + Podemos plantear también los llamados **gráficos de cajas**. Si lo hacemos para la variable **renfin** observamos como la mayor parte de datos atípicos se sitúan en la zona positiva de valor, pues también encontramos numerosos atípicos pero se sitúan mucho más centrados en torno a la media ya que la baja varianza de la parte central de los datos hace que R entienda como atípicos valores que no están tan lejos según parámetros humanos.
+  + Podemos plantear también los llamados **gráficos de cajas**. Si lo hacemos para la variable **renfin** observamos cómo la mayor parte de datos atípicos se sitúan en la zona positiva de valor, pues también encontramos numerosos atípicos pero se sitúan mucho más centrados en torno a la media ya que la baja varianza de la parte central de los datos hace que R entienda como atípicos valores que no están tan lejos según parámetros humanos.
   
 ```{r boxplot1, fig.width = 10, fig.height = 4}
 # GRAFICO CAJAS RENFIN
