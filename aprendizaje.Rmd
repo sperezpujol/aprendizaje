@@ -1,5 +1,5 @@
 ---
-title: "Trabajo de Aprendizaje Estadístico | Proyecto <p> Técnicas de Aprendizaje Estadístico aplicadas a empresas editoriales españolas"
+title: "Trabajo de Aprendizaje Estadístico <p> Técnicas de Aprendizaje Estadístico aplicadas a empresas editoriales españolas"
 subtitle: "Máster Universitario en Modelización y Análisis de Datos Económicos <p> (MUMADE)"
 author: 'Autores: Bermann, M.A. & Pérez, R.S. [Grupo D]'
 date: "`r format(Sys.time(), '%d %B, %Y')`"
@@ -78,7 +78,7 @@ Las empresass editoriales están en una transición donde el papel se está vien
 
 # Importación y tratamiento de datos
 
-Se han utilizado datos de **370 empresas editoriales españolas**, extraídas de la base de datos empresariales Sabi (licencia: [UCLM](https://www.biblioteca.uclm.es/encuentra-informacion/recursos/basesdedatos)), y obteniéndose un _dataset_ bidimensional sobre las editoriales españolas. Su dimensión es de 370 x 15, con una columna identificativa con el nombre de empresa y un conjunto de variables económicas, siendo éstas:
+Se han utilizado datos de **370 empresas editoriales españolas**, extraídas de la base de datos empresariales Sabi (licencia: [UCLM](https://www.biblioteca.uclm.es/encuentra-informacion/recursos/basesdedatos)), y obteniéndose un _dataset_ bidimensional. Su dimensión es de 370 x 15, con una columna identificativa con el nombre de empresa y un conjunto de variables económicas, siendo éstas:
 
   + **reneco**: la rentabilidad económica de la empresa. Es el resultado de dividir el resultado del ejercicio entre los activos empresariales.
   + **renfin**: la rentabilidad financiera de la empresa. Es el resultado de dividir el resultado del ejercicio entre los fondos propios.
@@ -112,7 +112,7 @@ editoriales$tamaño <-
                     "grande"))
 ```
 
-Cabe decir que se han dividido los datos en un conjunto de **entrenamiento** (train) y otro de **validación** (test), para lo que se ha fijado la semilla para que el resultado sea, oportunamente reproducible.
+Cabe decir que se han dividido los datos en un conjunto de **entrenamiento** (train) y otro de **validación** (test), para lo que se ha fijado la semilla para que el resultado sea oportunamente reproducible.
 
 ```{r division, include = FALSE}
 # Partiendo la muestra en test y train
@@ -156,8 +156,8 @@ ggplot(data = editoriales,
              alpha = 0.8, 
              colour = 'red4') +
   xlab('Empresa') +
-  ylab('Empleados') + 
-  ggtitle('Dispersión de la variable emplea') +
+  ylab('Empleados (emplea)') + 
+  ggtitle('Dispersión de la variable de empleados (emplea)') +
   theme_light() +
   theme(axis.text.x = element_text(angle = 90, 
                                    size = 6,
@@ -176,8 +176,8 @@ ggplot(data = editoriales,
              alpha = 0.8, 
              colour = 'red4') +
   xlab('Empresa') +
-  ylab('Rentabilidad financiera') + 
-  ggtitle('Dispersión de la variable renfin') +
+  ylab('Rentabilidad financiera (renfin)') + 
+  ggtitle('Dispersión de la variable de rentabilidad financiera (renfin)') +
   theme_light()+
   theme(axis.text.x = element_text(angle = 90, 
                                    size = 6,
@@ -197,9 +197,9 @@ ggplot(data = editoriales,
                outlier.color = "red4",
                outlier.shape = 16,
                notch = TRUE) +
-  labs(title = "Rentabilidad financiera") +
-  xlab("Rentabilidad financiera")+
-  ylab("Empresas") +
+  labs(title = "Boxplot renfin (rentabilidad financiera)") +
+  xlab("Empresas")+
+  ylab("Rentabilidad financiera (renfin)") +
   geom_hline(yintercept = 0)+
   theme_light()
 ```
@@ -240,13 +240,13 @@ editoriales %>%
 
 # Ajuste y predicción de modelos
 
-Tras haber analizado de forma exploratoria algunas de las variables consideradas en el dataset, en este segundo capítulo, se ha escogido la variable **renfin** (rentabilidad financiera), como variable numérica de interés, con el objetivo de predecirla a partir de las demás a través de los distintos tipos de modelos y técnicas de ajuste.
+Tras haber analizado de forma exploratoria algunas de las variables consideradas en el _dataset_, en este segundo capítulo, se ha escogido la variable **renfin** (rentabilidad financiera), como variable numérica de interés, con el objetivo de predecirla a partir de las demás a través de los distintos tipos de modelos y técnicas de ajuste.
 
-Así, el modelo de partido será el que realice una predicción de **reneco** (rentabilidad financiera), en función del **solvencia** (solvencia de la empresa), **apalanca** (apalancamiento) y **endeuda** (endeudamiento).
+Así, el modelo de partida será el que realice una predicción de **renfin** (rentabilidad financiera), en función de la **solvencia** (solvencia de la empresa), **apalanca** (apalancamiento) y **endeuda** (endeudamiento).
 
 $renfin = f(solvencia, apalanca, endeuda)$
 
-Para desarrollar las técnicas y ajustes de modelos, se escogerán diferentes opciones (en negrita) de entre las que a continuación se detallan, ajustando dichos modelos con los datos de entrenamiento (train) y se evaluarán cada uno de ellos, sus errores, tanto en el conjunto de entrenamiento (train) como de validació (test). En algunos de ellos, es posible que se deba realizar validación cruzada.
+Para desarrollar las técnicas y ajustes de modelos, se escogerán diferentes opciones (en negrita) de entre las que a continuación se detallan, ajustando dichos modelos con los datos de entrenamiento (train) y se evaluarán cada uno de ellos, sus errores, tanto en el conjunto de entrenamiento (train) como de validación (test). En algunos de ellos, es posible que se deba realizar validación cruzada.
 
   + KNN
   + **Regresión lineal múltiple**
@@ -267,7 +267,7 @@ La realización de estas técnicas y ajustes de modelos, revela, de forma prelim
 
 En primer lugar, se propone construir un **modelo de regresión múltiple**, el cual se estimará a través de mínimos cuadrados. 
 
-  +   La **primera estimación** con todas las variables consideradas en el dataset arroja una capacidad predictiva alta (véase el coeficiente de determinación ajustado), algo que resulta evidente si se tiene en cuenta que se han considerado todas las exógenas. Veamos la alta significación de variables como apalanca, solvencia, margen, res, activo, endeuda o reneco, todas relacionadas directa, o indirectamente, en términos de contabilidad y relaciones económicas, con la rentabilidad financiera. No supondrá esta cuestión problemas de multicolinealidad si recordamos el análisis de correlaciones, pues la variable renfin no presentaba altas correlaciones positivas o negativas con ninguna variable en concreto. Por otra parte, si se observan los valores del índice de **inflación de la varianza (vif)**, se observa que únicamente dos variables podrían dar problemas de multicolinealidad (emplea y res) al ser su valor superior a 4 (aunque el análisis gráfico de correlaciones no lo mostrara).
+  +   La **primera estimación** con todas las variables consideradas en el _dataset_ arroja una capacidad predictiva alta (véase el coeficiente de determinación ajustado), algo que resulta evidente si se tiene en cuenta que se han considerado todas las exógenas. Veamos la alta significación de variables como apalanca, solvencia, margen, res, activo, endeuda o reneco, todas relacionadas directa, o indirectamente, en términos de contabilidad y relaciones económicas, con la rentabilidad financiera. No supondrá esta cuestión problemas de multicolinealidad si recordamos el análisis de correlaciones, pues la variable renfin no presentaba altas correlaciones positivas o negativas con ninguna variable en concreto. Por otra parte, si se observan los valores del índice de **inflación de la varianza (vif)**, se observa que únicamente dos variables podrían dar problemas de multicolinealidad (emplea y res) al ser su valor superior a 4 (aunque el análisis gráfico de correlaciones no lo mostrara).
 
 ```{r rlm1}
 # Multiple Linear Regression (ALL ITEMS)
@@ -279,7 +279,7 @@ summary(lm1.fit)
 vif(lm1.fit)
 ```
 
-  +   En la **segunda estimación** se acota la estimación considerando la ecuación inicial propuesta ($renfin = f(solvencia, apalanca, endeuda)$), donde la capacidad predictiva baja de forma notable respecto a la primera ecuación, aunque se puede considerar una buena capacidad explicativa del modelo a la hora de determinar las relaciones entre las exógenas y la variable dependiente. Se observa cómo las tres variables se relacionan positivamente con la rentabilidad financiera. Esto significa que la emprea consigue a través de determinados recursos financieros concretos mejorar sus resultados, en este caso el financiero, al relacionarse positivamente con el apalancamiento. Por otra parte, la solvencia también permite mejorar la rentabilidad financiera, es decir, el desahogo financiero (capacidad de hacer frenta a los pagos o pasivos a corto plazo) le permite mejorar su situación de renfin. Y por último, el endeudamiento, que puede venir dado por el uso de esos recursos financieros extraordinarios mencionados, hace a la empresa también tener mejor situación de renfin. En este caso el análisis de inflación de la varianza (vif) sí que muestra síntomas de que pudieran existir problemas de colinealidad por sus elevados valores superiores a 4 para el caso de solvencia y endeuda.
+  +   En la **segunda estimación** se acota la estimación considerando la ecuación inicial propuesta ($renfin = f(solvencia, apalanca, endeuda)$), donde la capacidad predictiva baja de forma notable respecto a la primera ecuación, aunque se puede considerar una buena capacidad explicativa del modelo a la hora de determinar las relaciones entre las exógenas y la variable dependiente. Se observa cómo las tres variables se relacionan positivamente con la rentabilidad financiera. Esto significa que la empresa consigue a través de determinados recursos financieros concretos mejorar sus resultados, en este caso el financiero, al relacionarse positivamente con el apalancamiento. Por otra parte, la solvencia también permite mejorar la rentabilidad financiera, es decir, el desahogo financiero (capacidad de hacer frenta a los pagos o pasivos a corto plazo) le permite mejorar su situación de renfin. Y por último, el endeudamiento, que puede venir dado por el uso de esos recursos financieros extraordinarios mencionados, hace a la empresa también tener mejor situación de renfin. En este caso el análisis de inflación de la varianza (vif) sí que muestra síntomas de que pudieran existir problemas de colinealidad por sus elevados valores superiores a 4 para el caso de solvencia y endeuda.
 
 ```{r rlm2}
 # Multiple Linear Regression
@@ -304,7 +304,7 @@ mean((renfin - predict(lm2.fit,
 
 En este segundo apartado se va a proceder a ajustar un **árbol de regresión** sobre la base de datos de editoriales que se está utilizando.
 
-  +   En primer lugar, se creala muestra de entrenamiento y se ajusta el árbol a los datos de entrenamiento. Los resultados nos indican que tenemos que usar 4 variables para construir el árbol. En el contexto del árbol de regresión, la desviación es la suma de los cuadrados de los errores del árbol.
+  +   En primer lugar, se crea la muestra de entrenamiento y se ajusta el árbol a los datos de entrenamiento (se ha utilizado la variable reneco como asimilada de renfin por problemas en la construcción con renfin). Los resultados nos indican que tenemos que usar 4 variables para construir el árbol. En el contexto del árbol de regresión, la desviación es la suma de los cuadrados de los errores del árbol.
   
 ```{r tree1}
 set.seed(1)
@@ -323,10 +323,11 @@ summary(tree.editoriales)
 ```{r plot_tree1, fig.width = 10, fig.height = 4}
 plot(tree.editoriales)
 text(tree.editoriales,
-     pretty = 0)
+     pretty = 1)
+?text
 ```
 
-  +   En este punto, cabe plantearse si reducir las divisiones permite mejorar los resultados obtenidos. Se observa que no es necesario reducir las divisiones para mejorar el árbol al observar el siguiente gráfico.
+  +   En este punto, cabe plantearse si reducir las divisiones permite mejorar los resultados obtenidos. Se observa que no es necesario reducir las divisiones para mejorar el árbol al visualizar el siguiente gráfico.
   
 ```{r plot_tree2, fig.width = 10, fig.height = 4}
 cv.editoriales <- 
@@ -446,7 +447,7 @@ table(svm.predtotal,
 
 En este tercer, y último intento, se ha realizado una predicción utilizando el método de *k-vecinos*, obteniendo resultados para ambas muestras (entrenamiento y validación), escogiéndose 4 grupos de k-vecinos al tener 4 tipos de empresas **tamaño** (tamaños de empresas).
 
-  +   Los resultados arrojan, para ambas muestras, un acierto en la predicción de entorno al 90%, algo ligeramente superior en la muestra de entrenamiento. 
+  +   Los resultados arrojan, para ambas muestras, un acierto en la predicción de en torno al 90%, algo ligeramente superior en la muestra de entrenamiento. 
   + Si se compara con la predicción del árbol de clasificación (91,6% en muestra de validación), se observa que el método de k-vecinos es mínimamente peor que el árbol de clasificación. Por otro lado, de forma complementaria, cabe decir que el árbol de clasificación acertaba en la predicción un 80,5%, mientras que el método de k-vecinos es prácticamente un 10% superior (91,40%). 
   + En este punto cabe decir que **el método de k-vecinos sería mejor a la hora de predecir**, aunque el árbol de clasificación es más intepretable al no caer en lo automático del otro método (calcula distancias y predice de forma directa).
 
@@ -533,7 +534,7 @@ En esta sección se incluyen las referencias bibliográficas utilizadas para el 
 
 [Cano, E. (2022). Introducción al software estadístico R. https://www.lcano.com/b/iser/_book/index.html](https://www.lcano.com/b/iser/_book/index.html)
 
-[James, G. et al. (2021). An introduction to Statistical Learning with Applications in R. Second Edition. Springer](https://www.statlearning.com/)
+[James, G. et al. (2021). An introduction to Statistical Learning with Applications in R. Second Edition. Springer. https://www.statlearning.com/resources-second-edition](https://www.statlearning.com/)
 
 
 # Anexos
