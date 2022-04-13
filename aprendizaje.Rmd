@@ -324,7 +324,6 @@ summary(tree.editoriales)
 plot(tree.editoriales)
 text(tree.editoriales,
      pretty = 1)
-?text
 ```
 
   +   En este punto, cabe plantearse si reducir las divisiones permite mejorar los resultados obtenidos. Se observa que no es necesario reducir las divisiones para mejorar el árbol al visualizar el siguiente gráfico.
