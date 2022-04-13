@@ -1,6 +1,6 @@
 # :information_source: **TRABAJO FINAL: APRENDIZAJE ESTADÍSTICO Y OTRAS TÉCNICAS ANALÍTICAS AVANZADAS**
 
-_Última modificación: 12 de abril de 2022_
+_Última modificación: 13 de abril de 2022_
 
 Este repositorio contiene los documentos y archivos necesarios para la entrega del trabajo de la asignatura de **Aprendizaje Estadístico y Otras Técnicas Analíticas Avanzadas (AEOTAA)** del **Máster Universitario en Modelización y Análisis de Datos Económicos (MUMADE)** realizado por los alumnos:
 
