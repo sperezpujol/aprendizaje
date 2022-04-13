@@ -22,7 +22,6 @@ knitr::opts_chunk$set(echo = FALSE,
 ```{r inicio, include = FALSE}
 # Limpieza inicial del entorno
 rm(list = ls())
-
 # Instalación de paquetes que no estén instalados
 packages <- c("tidyr",
               "dplyr",
@@ -35,14 +34,16 @@ packages <- c("tidyr",
               "igraph",
               "ggraph",
               "scales",
-              "stringr")
-
+              "textdata",
+              "stringr",
+              "knitr",
+              "wordcloud",
+              "reshape2")
 installed_packages <- packages %in% 
   rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
   install.packages(packages[!installed_packages])
 }
-
 # Activación de paquetes
 library(tidyr)
 library(dplyr)
@@ -55,12 +56,16 @@ library(ggplot2)
 library(igraph)
 library(ggraph)
 library(scales)
-library(stringr)
+library(textdata)
+library(knitr)
+library(wordcloud)
+library(reshape2)
 ```
 
 # Resumen 
 
-Párrafo único
+Para este trabajo, leeremos y analizaremos un libro. La única diferencia es que lo hará R por nosotros. 
+Hemos escogido Oliver Twist por ser un libro popular con una trama y ambientes más bien trágicos. Además, hay cambios de entorno según el capítulo, con lo que podemos ver momento a momento los cambios de guión gracias a técnicas de text mining.
 
 # Procesamiento del texto
 
@@ -78,7 +83,9 @@ text_olivertwist <-
   select(2) %>% 
   pull() %>%
   map(trimws) %>%
-  ifelse(. == "", "_salto_", .) %>%
+  ifelse(. == "",
+         "_salto_",
+         .) %>%
   paste0(., collapse = " ") %>%
   strsplit(split = "_salto_") %>%
   map(trimws) %>%
@@ -97,14 +104,14 @@ text_olivertwist <-
 # Quitando renglones vacíos
 text_olivertwist <-
   text_olivertwist %>%
-  filter(!texto %in% c(" ", "")) %>%
+  filter(!texto %in% c(" ",
+                       "")) %>%
   mutate_all(trimws)
 
 # Agrupando párrafos por capítulos
 text_olivertwist %>%
   filter(grepl("CHAPTER",
                texto))
-
 text_olivertwist <-
   text_olivertwist %>%
   mutate(capitulo = ifelse(grepl("CHAPTER", 
@@ -118,28 +125,152 @@ tidy_olivertwist <-
   text_olivertwist %>%
   unnest_tokens(word, texto) %>%
   anti_join(stop_words)
+```
 
+# Análisis de sentimientos
+
+En esta sección, analizamos _token_ por _token_ (en este caso, palabra por palabra) si corresponde a un sentimiento positivo o negativo de la colección de palabras de Bing. Hemos decidido usar ese repositorio de palabras ya que el resto que nos ofrece R categorizan las palabras en varios grupos, por lo que no son tan sencillos de representar y identificar. Hemos encontrado muy interesante la fuente "afinn", pero al tener un tercio de las palabras del repositorio de Bing hemos decidido descartarlo. 
+
+```{r}
+bing <- 
+  get_sentiments("bing")
+sentimiento <-
+  left_join(x = tidy_olivertwist,
+            y = bing,
+            by = "word") %>% 
+  count(word, 
+        sentiment, 
+        sort = TRUE)
+
+sentimiento <- 
+  drop_na(sentimiento)
+sentimiento_filtrado <- 
+  sentimiento %>% 
+  filter(n > 25)
+
+sentimiento_positivo <-
+  sentimiento_filtrado %>% 
+  filter(sentiment == "positive")
+sentimiento_negativo <-
+  sentimiento_filtrado %>%
+  filter(sentiment == "negative")
+ggplot(sentimiento_positivo,
+       aes(word,
+           n))+
+  geom_point()+
+  theme_light()+
+  theme(axis.text.x = element_text(angle = 90))+
+  ggtitle("Palabras positivas más comunes")+
+  ylab("Frecuencia")+
+  xlab("Palabra")
+
+ggplot(sentimiento_negativo,
+       aes(word, n)) +
+  geom_point()+
+  theme_light()+
+  theme(axis.text.x = element_text(angle = 90))+
+  ggtitle("Palabras negativas más comunes")+
+  ylab("Frecuencia")+
+  xlab("Palabra")
+
+sentimiento_positivo %>% 
+  head(10) %>% 
+  kable()
+
+sentimiento_negativo %>% 
+  head(10) %>% 
+  kable()
+
+sum(sentimiento_positivo$n)
+sum(sentimiento_negativo$n)
+```
+
+Nos llama la atención que la palabra que más aparece, *master*, aunque sea clasificada como positiva, en el contexto de la obra puede verse más como un signo de sumisión, y por lo tanto, negativa. También vemos que hay palabras como happy o love que son eminentemente positivas. 
+Respecgto a las palabras negativas, si bien descartamos Twist por ser el apellido del protagonista, tienen una frecuencia acumulada mayor, y son palabras unívocas. Oscuro, pobre, frío o muerto solo pueden ser interpretadas de un modo. Destacamos muerte y muerto ya que es la más negativa de las palabras, y que aparecen 53 veces cada una.
+
+En total, hay más de dos veces palabras negativas que positivas, aun contando *master* como palabra postiva.
+
+Vamos a comparar por capítulo.
+
+```{r}
+sentimiento_capitulo <-
+  left_join(x = tidy_olivertwist,
+            y = bing,
+            by = "word") %>% 
+  drop_na()
+sentimiento_capitulo <-
+  sentimiento_capitulo %>% 
+  group_by(capitulo)
+```
+
+Vamos a comparar cuánto se repiten las palabras negativas y positivas al principio y final de la obra para ver cómo se desarrolla.
+
+```{r}
+capitulo_positivo <-
+  sentimiento_capitulo %>%
+  filter(sentiment == "positive")
+capitulo_negativo <-
+  sentimiento_capitulo %>%
+  filter(sentiment == "negative")
+capitulo_positivo %>%
+  group_by(capitulo) %>%
+  count(sentiment)
+capitulo_negativo %>%
+  group_by(capitulo) %>%
+  count(sentiment)
+```
+
+# Nube de palabras
+
+```{r}
+tidy_olivertwist %>%
+ count(word) %>%
+ with(wordcloud(word,
+                n,
+                max.words = 150))
+
+tidy_olivertwist %>%
+ inner_join(bing) %>%
+ count(word,
+       sentiment,
+       sort = TRUE) %>%
+ acast(word ~ sentiment,
+       value.var = "n",
+       fill = 0) %>%
+ comparison.cloud(colors = c("red3",
+                             "green3"),
+ max.words = 150)
+```
+
+# Frecuencia de palabras
+
+```{r}
 # Palabras más frecuentes
 tidy_olivertwist %>%
   count(word,
         sort = TRUE)
 
-frequency <- mutate(tidy_olivertwist,
-                    author = "Charles Dickens") %>%
-  mutate(word = str_extract(word,
-                            "[a-z']+")) %>%
-  count(author, word) %>%
-  group_by(author) %>%
-  mutate(proportion = n / sum(n)) %>%
-  select(-n) %>%
-  spread(author, proportion) %>%
+# Gráfico de frecuencia de palabras
+frequency <-
+  tidy_olivertwist %>%
+  count(word,
+        sort = TRUE,) %>% 
+  mutate(proportion = n / sum(n))
+
+frequency <- frequency %>% 
+  slice(1:75)
+
+ggplot(frequency,
+       aes(word,
+           proportion))+
+  geom_point(color = "red4")+
+  theme_light()+
+  theme(axis.text.x = element_text(angle = 90),
+        axis.text = element_text(size = 7))+
+  ggtitle("Palabras más utilizadas")+
+  ylab("Frecuencia") +
+  xlab("Palabra")
 ```
-
-# Análisis de sentimientos
-
-# Nube de palabras
-
-# Frecuencia de palabras
 
 # Conclusiones
 
